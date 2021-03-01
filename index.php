@@ -1,7 +1,7 @@
 <?php
 $is_auth = rand(0, 1);
 
-$user_name = ''; // укажите здесь ваше имя
+$user_name = 'Olya'; // укажите здесь ваше имя
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -41,6 +41,7 @@ $user_name = ''; // укажите здесь ваше имя
         </form>
         <div class="header__nav-wrapper">
             <!-- здесь должен быть PHP код, который показывает следующий тег по условию -->
+            <? if ($is_auth == 1): ?>
             <nav class="header__nav">
                 <ul class="header__my-nav">
                     <li class="header__my-page header__my-page--popular">
@@ -68,6 +69,7 @@ $user_name = ''; // укажите здесь ваше имя
                             </div>
                             <div class="header__profile-name">
                                 <span>
+                                <?= $user_name; ?>
                                     <!--здесь должно быть имя пользователя-->
                                 </span>
                                 <svg class="header__link-arrow" width="10" height="6">
@@ -110,6 +112,7 @@ $user_name = ''; // укажите здесь ваше имя
                     </li>
                 </ul>
             </nav>
+            <? endIf; ?>
         </div>
     </div>
 </header>
