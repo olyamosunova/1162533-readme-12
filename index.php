@@ -11,13 +11,13 @@ $posts = [
 		'user_name' => 'Лариса',
 		'avatar' => 'userpic-larisa-small.jpg'
 	],
-	[
-		'title' => 'Игра престолов',
-		'type' => 'post-text',
-		'content' => 'Не могу дождаться начала финального сезона своего любимого сериала!',
-		'user_name' => 'Владик',
-		'avatar' => 'userpic.jpg'
-	],
+    [
+        'title' => 'Игра престолов',
+        'type' => 'post-text',
+        'content' => 'Не могу дождаться начала финального сезона своего любимого сериала!',
+        'user_name' => 'Владик',
+        'avatar' => 'userpic.jpg'
+    ],
 	[
 		'title' => 'Наконец, обработал фотки!',
 		'type' => 'post-photo',
@@ -39,7 +39,37 @@ $posts = [
 		'user_name' => 'Владик',
 		'avatar' => 'userpic.jpg'
 	],
+    [
+        'title' => 'Полезный пост про Байкал',
+        'type' => 'post-text',
+        'content' => 'Озеро Байкал – огромное древнее озеро в горах Сибири к северу от монгольской границы. Байкал считается самым глубоким озером в мире. Он окружен сетью пешеходных маршрутов, называемых Большой байкальской тропой. Деревня Листвянка, расположенная на западном берегу озера, – популярная отправная точка для летних экскурсий. Зимой здесь можно кататься на коньках и собачьих упряжках.',
+        'user_name' => 'Лариса Роговая',
+        'avatar' => 'userpic.jpg'
+    ],
 ];
+
+function cut_text($text, $count_symbols = 300) {
+    $word_list = explode(" ", $text);
+    $symbols_sum = 0;
+    $new_word_list = null;
+
+    if (strlen($text) <= $count_symbols) {
+        return '<p>' . $text . '</p>';
+    }
+
+    foreach ($word_list as $word) {
+        $new_word_list[] = $word;
+        $symbols_sum += mb_strlen($word, 'utf-8');
+
+        if ($symbols_sum >= $count_symbols) {
+            $new_word_list[] = '...';
+            break;
+        }
+    }
+
+    return '<p>' . implode($new_word_list, ' ') . '</p>' . '<a class="post-text__more-link" href="#">Читать далее</a>';
+};
+
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -284,7 +314,7 @@ $posts = [
                             </a>
                         </div>
                     <?php else: ?>
-                    <p><?= $post['content'] ?></p>
+                    <?= cut_text($post['content']) ?>
                     <?php endif; ?>
 
                 </div>
