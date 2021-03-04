@@ -48,26 +48,30 @@ $posts = [
     ],
 ];
 
+define("SPACE_SYMBOL_COUNT", 1);
+define("ELLIPSIS_SYMBOL_COUNT", 3);
+
 function cut_text($text, $count_symbols = 300) {
     $word_list = explode(" ", $text);
     $symbols_sum = 0;
     $new_word_list = null;
 
-    if (strlen($text) <= $count_symbols) {
+    if (mb_strlen($text, 'utf-8') <= $count_symbols) {
         return '<p>' . $text . '</p>';
     }
 
     foreach ($word_list as $word) {
-        $new_word_list[] = $word;
-        $symbols_sum += mb_strlen($word, 'utf-8');
+        $symbols_sum += mb_strlen($word, 'utf-8') + SPACE_SYMBOL_COUNT;
 
-        if ($symbols_sum >= $count_symbols) {
+        if ($symbols_sum + ELLIPSIS_SYMBOL_COUNT >= $count_symbols) {
             $new_word_list[] = '...';
             break;
         }
+
+        $new_word_list[] = $word;
     }
 
-    return '<p>' . implode($new_word_list, ' ') . '</p>' . '<a class="post-text__more-link" href="#">Читать далее</a>';
+    return '<p>' . implode(' ', $new_word_list) . '</p>' . '<a class="post-text__more-link" href="#">Читать далее</a>';
 };
 
 ?>
