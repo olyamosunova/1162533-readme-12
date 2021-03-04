@@ -11,13 +11,13 @@ $posts = [
 		'user_name' => 'Лариса',
 		'avatar' => 'userpic-larisa-small.jpg'
 	],
-	[
-		'title' => 'Игра престолов',
-		'type' => 'post-text',
-		'content' => 'Не могу дождаться начала финального сезона своего любимого сериала!',
-		'user_name' => 'Владик',
-		'avatar' => 'userpic.jpg'
-	],
+    [
+        'title' => 'Игра престолов',
+        'type' => 'post-text',
+        'content' => 'Не могу дождаться начала финального сезона своего любимого сериала!',
+        'user_name' => 'Владик',
+        'avatar' => 'userpic.jpg'
+    ],
 	[
 		'title' => 'Наконец, обработал фотки!',
 		'type' => 'post-photo',
@@ -39,7 +39,41 @@ $posts = [
 		'user_name' => 'Владик',
 		'avatar' => 'userpic.jpg'
 	],
+    [
+        'title' => 'Полезный пост про Байкал',
+        'type' => 'post-text',
+        'content' => 'Озеро Байкал – огромное древнее озеро в горах Сибири к северу от монгольской границы. Байкал считается самым глубоким озером в мире. Он окружен сетью пешеходных маршрутов, называемых Большой байкальской тропой. Деревня Листвянка, расположенная на западном берегу озера, – популярная отправная точка для летних экскурсий. Зимой здесь можно кататься на коньках и собачьих упряжках.',
+        'user_name' => 'Лариса Роговая',
+        'avatar' => 'userpic.jpg'
+    ],
 ];
+
+define("SPACE_SYMBOL_COUNT", 1);
+define("ELLIPSIS_SYMBOL_COUNT", 3);
+
+function cut_text($text, $count_symbols = 300) {
+    $word_list = explode(" ", $text);
+    $symbols_sum = 0;
+    $new_word_list = null;
+
+    if (mb_strlen($text, 'utf-8') <= $count_symbols) {
+        return '<p>' . $text . '</p>';
+    }
+
+    foreach ($word_list as $word) {
+        $symbols_sum += mb_strlen($word, 'utf-8') + SPACE_SYMBOL_COUNT;
+
+        if ($symbols_sum + ELLIPSIS_SYMBOL_COUNT >= $count_symbols) {
+            $new_word_list[] = '...';
+            break;
+        }
+
+        $new_word_list[] = $word;
+    }
+
+    return '<p>' . implode(' ', $new_word_list) . '</p>' . '<a class="post-text__more-link" href="#">Читать далее</a>';
+};
+
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -284,7 +318,7 @@ $posts = [
                             </a>
                         </div>
                     <?php else: ?>
-                    <p><?= $post['content'] ?></p>
+                    <?= cut_text($post['content']) ?>
                     <?php endif; ?>
 
                 </div>
