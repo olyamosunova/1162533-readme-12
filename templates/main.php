@@ -24,6 +24,35 @@ function cut_text($text, $count_symbols = 300) {
 
     return '<p>' . implode(' ', $new_word_list) . '</p>' . '<a class="post-text__more-link" href="#">Читать далее</a>';
 };
+
+function format_date($date) {
+    date_default_timezone_set('Europe/Moscow');
+    $cur_date = date_create("now");
+    $diff = date_diff($cur_date, date_create($date));
+    $minutes = date_interval_format($diff, "%i");
+    $hours = date_interval_format($diff, "%h");
+    $days = date_interval_format($diff, "%d");
+    $months = date_interval_format($diff, "%m");
+
+    if ($months > 0) {
+        return $months . ' ' .
+            get_noun_plural_form($months, 'месяц', 'месяца', 'месяцев') . ' назад';
+    } elseif ($days > 6) {
+        return floor($days / 7) . ' ' .
+            get_noun_plural_form(floor(($days / 7)), ' неделю', ' недели', ' недель') . ' назад';
+    } elseif ($days > 0) {
+        return $days . ' ' .
+            get_noun_plural_form($days, 'день', 'дня', 'дней') . ' назад';
+    } elseif ($hours > 0) {
+        return $hours . ' ' .
+            get_noun_plural_form($hours, 'час', 'часа', 'часов') . ' назад';
+    } elseif ($minutes > 0) {
+        return $minutes . ' ' .
+            get_noun_plural_form($minutes, 'минуту', 'минуты', 'минут') . ' назад';
+    } else {
+        return '';
+    }
+};
 ?>
 
 <div class="container">
@@ -113,7 +142,6 @@ function cut_text($text, $count_symbols = 300) {
     </div>
     <div class="popular__posts">
         <?php foreach ($posts as $key => $post): ?>
-
             <article class="popular__post post <?= $post['type'] ?>">
                 <header class="post__header">
                     <h2><?= htmlspecialchars($post['title']) ?></h2>
@@ -170,7 +198,11 @@ function cut_text($text, $count_symbols = 300) {
                             </div>
                             <div class="post__info">
                                 <b class="post__author-name"><?= $post['user_name'] ?></b>
-                                <time class="post__time" datetime="">дата</time>
+                                <?php $date = generate_random_date($key); ?>
+                                <time class="post__time"
+                                      datetime="<?= $date ?>"
+                                      title="<?= date_format(date_create($date), 'd.m.Y h:i') ?>">
+                                    <?= format_date($date) ?></time>
                             </div>
                         </a>
                     </div>
