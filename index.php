@@ -99,7 +99,7 @@ function format_date($date) {
     } elseif ($minutes > 0) {
         return $minutes . ' ' .
             get_noun_plural_form($minutes, 'минуту', 'минуты', 'минут') . ' назад';
-    } elseif ($minutes === 0) {
+    } elseif ($minutes <= 0) {
         return 'только что';
     } else {
         return '';
