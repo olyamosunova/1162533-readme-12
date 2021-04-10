@@ -17,9 +17,6 @@ CREATE TABLE post (
     title TEXT,
     content TEXT,
     author VARCHAR(128),
-    image TEXT,
-    video TEXT,
-    link TEXT,
     shown_count INT(11),
     user_id INT(11),
     content_type_id INT(11)
