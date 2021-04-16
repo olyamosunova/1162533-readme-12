@@ -20,7 +20,7 @@ if ($con == false) {
         "SELECT p.id, p.title, p.content, p.author, u.user_name, u.avatar, p.shown_count, u.login, c.class_name as type, p.date_add
         FROM post p JOIN user u ON p.user_id = u.id
         JOIN content_type c ON p.content_type_id = c.id
-        ORDER BY p.shown_count DESC;";
+        ORDER BY p.shown_count DESC LIMIT 6;";
 
     $result_popular_post = mysqli_query($con, $sql_post_popular);
 
