@@ -8,6 +8,7 @@ CREATE TABLE user (
     email VARCHAR(128) NOT NULL UNIQUE,
     login VARCHAR(128),
     password CHAR(64) NOT NULL,
+    user_name VARCHAR(128),
     avatar TEXT
 );
 
@@ -58,7 +59,8 @@ CREATE TABLE hashtag (
 CREATE TABLE content_type (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(128) UNIQUE,
-    class_name VARCHAR(128) UNIQUE
+    class_name VARCHAR(128) UNIQUE,
+    label VARCHAR(128)
 );
 
 CREATE TABLE PostHashtag (
