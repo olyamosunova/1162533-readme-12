@@ -1,13 +1,13 @@
 /* Запросы на добавление типов контента для поста */
-INSERT INTO content_type (title, class_name) VALUES ('text', 'post-text');
-INSERT INTO content_type (title, class_name) VALUES ('photo', 'post-photo');
-INSERT INTO content_type (title, class_name) VALUES ('video', 'post-video');
-INSERT INTO content_type (title, class_name) VALUES ('quote', 'post-quote');
-INSERT INTO content_type (title, class_name) VALUES ('link', 'post-link');
+INSERT INTO content_type (title, class_name, label) VALUES ('text', 'post-text', 'Текст');
+INSERT INTO content_type (title, class_name, label) VALUES ('photo', 'post-photo', 'Фото');
+INSERT INTO content_type (title, class_name, label) VALUES ('video', 'post-video', 'Видео');
+INSERT INTO content_type (title, class_name, label) VALUES ('quote', 'post-quote', 'Цитата');
+INSERT INTO content_type (title, class_name, label) VALUES ('link', 'post-link', 'Ссылка');
 
 /* Запросы на добавление пользователей */
-INSERT INTO user (email, login, password, avatar) VALUES ('first.user@mail.ru', 'first.user', 'first111', 'https://i.ibb.co/71dJ1H2/first.jpg');
-INSERT INTO user (email, login, password, avatar) VALUES ('second.user@mail.ru', 'second.user', 'second222', 'https://i.ibb.co/BwfffR1/second.jpg');
+INSERT INTO user (email, login, password, user_name, avatar) VALUES ('first.user@mail.ru', 'first.user', 'first111', 'Катерина', 'https://i.ibb.co/71dJ1H2/first.jpg');
+INSERT INTO user (email, login, password, user_name, avatar) VALUES ('second.user@mail.ru', 'second.user', 'second222', 'Игорь', 'https://i.ibb.co/BwfffR1/second.jpg');
 
 /* Запросы на добавление постов */
 INSERT INTO post

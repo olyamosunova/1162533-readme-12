@@ -1,49 +1,34 @@
 <?php
 require('helpers.php');
-$posts = [
-    [
-        'title' => 'Цитата',
-        'type' => 'post-quote',
-        'content' => 'Мы в жизни любим только раз, а после ищем лишь похожих',
-        'user_name' => 'Лариса',
-        'avatar' => 'userpic-larisa-small.jpg'
-    ],
-    [
-        'title' => 'Игра престолов',
-        'type' => 'post-text',
-        'content' => 'Не могу дождаться начала финального сезона своего любимого сериала!',
-        'user_name' => 'Владик',
-        'avatar' => 'userpic.jpg'
-    ],
-    [
-        'title' => 'Наконец, обработал фотки!',
-        'type' => 'post-photo',
-        'content' => 'rock-medium.jpg',
-        'user_name' => 'Виктор',
-        'avatar' => 'userpic-mark.jpg'
-    ],
-    [
-        'title' => 'Моя мечта',
-        'type' => 'post-photo',
-        'content' => 'coast-medium.jpg',
-        'user_name' => 'Лариса',
-        'avatar' => 'userpic-larisa-small.jpg'
-    ],
-    [
-        'title' => 'Лучшие курсы',
-        'type' => 'post-link',
-        'content' => 'www.htmlacademy.ru',
-        'user_name' => 'Владик',
-        'avatar' => 'userpic.jpg'
-    ],
-    [
-        'title' => 'Полезный пост про Байкал',
-        'type' => 'post-text',
-        'content' => 'Озеро Байкал – огромное древнее озеро в горах Сибири к северу от монгольской границы. Байкал считается самым глубоким озером в мире. Он окружен сетью пешеходных маршрутов, называемых Большой байкальской тропой. Деревня Листвянка, расположенная на западном берегу озера, – популярная отправная точка для летних экскурсий. Зимой здесь можно кататься на коньках и собачьих упряжках.',
-        'user_name' => 'Лариса Роговая',
-        'avatar' => 'userpic.jpg'
-    ],
-];
+$con = mysqli_connect("127.0.0.1:3306", "root", "root","readme");
+mysqli_set_charset($con, "utf8");
+
+$content_types = array();
+$popular_posts = array();
+
+if ($con == false) {
+    print("Ошибка подключения: " . mysqli_connect_error());
+} else {
+    $sql_content_type = "SELECT * FROM content_type";
+    $result_content_type = mysqli_query($con, $sql_content_type);
+
+    if ($result_content_type) {
+        $content_types = mysqli_fetch_all($result_content_type, MYSQLI_ASSOC);
+    }
+
+    $sql_post_popular =
+        "SELECT p.id, p.title, p.content, p.author, u.user_name, u.avatar, p.shown_count, u.login, c.class_name as type, p.date_add
+        FROM post p JOIN user u ON p.user_id = u.id
+        JOIN content_type c ON p.content_type_id = c.id
+        ORDER BY p.shown_count DESC LIMIT 6;";
+
+    $result_popular_post = mysqli_query($con, $sql_post_popular);
+
+    if ($result_popular_post) {
+        $popular_posts = mysqli_fetch_all($result_popular_post, MYSQLI_ASSOC);
+    }
+}
+
 
 $user_name = 'Olya';
 
@@ -106,7 +91,7 @@ function format_date($date) {
     }
 };
 
-$page_content = include_template('main.php', ['posts' => $posts]);
+$page_content = include_template('main.php', ['popular_posts' => $popular_posts, 'content_types' => $content_types]);
 $page = include_template('layout.php', [
     'page_content' => $page_content,
     'user_name' => $user_name,
