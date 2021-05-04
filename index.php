@@ -1,38 +1,6 @@
 <?php
 require('helpers.php');
-$con = mysqli_connect("127.0.0.1:3306", "root", "root","readme");
-mysqli_set_charset($con, "utf8");
-
-$content_types = array();
-$popular_posts = array();
-
-if ($con == false) {
-    print("Ошибка подключения: " . mysqli_connect_error());
-} else {
-    $sql_content_type = "SELECT * FROM content_type";
-    $result_content_type = mysqli_query($con, $sql_content_type);
-
-    if ($result_content_type) {
-        $content_types = mysqli_fetch_all($result_content_type, MYSQLI_ASSOC);
-    }
-
-    $sql_post_popular =
-        "SELECT p.id, p.title, p.content, p.author, u.user_name, u.avatar, p.shown_count, u.login, c.class_name as type, p.date_add
-        FROM post p JOIN user u ON p.user_id = u.id
-        JOIN content_type c ON p.content_type_id = c.id
-        ORDER BY p.shown_count DESC LIMIT 6;";
-
-    $result_popular_post = mysqli_query($con, $sql_post_popular);
-
-    if ($result_popular_post) {
-        $popular_posts = mysqli_fetch_all($result_popular_post, MYSQLI_ASSOC);
-    }
-}
-
-
-$user_name = 'Olya';
-
-$title = 'readme: популярное';
+require('db.php');
 
 define("SPACE_SYMBOL_COUNT", 1);
 define("ELLIPSIS_SYMBOL_COUNT", 3);
@@ -90,6 +58,13 @@ function format_date($date) {
         return '';
     }
 };
+
+$con = get_db_connection();
+$user_name = 'Olya';
+$title = 'readme: популярное';
+$content_types = get_post_content_types($con);
+$popular_posts = get_popular_posts($con);
+
 
 $page_content = include_template('main.php', ['popular_posts' => $popular_posts, 'content_types' => $content_types]);
 $page = include_template('layout.php', [
