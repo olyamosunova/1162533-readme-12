@@ -59,14 +59,29 @@ function format_date($date) {
     }
 };
 
+function get_link_content_type($id) {
+    $scriptname = pathinfo(__FILE__, PATHINFO_BASENAME);
+    $url = "/" . $scriptname . "?ID=" . $id;
+
+    return $url;
+};
+
+function get_url_post($id) {
+    return "/post.php?ID=" . $id;
+};
+
 $con = get_db_connection();
 $user_name = 'Olya';
 $title = 'readme: популярное';
 $content_types = get_post_content_types($con);
-$popular_posts = get_popular_posts($con);
+$active_type_content_id = filter_input(INPUT_GET, 'ID');
+$popular_posts = get_popular_posts($con, $active_type_content_id);
 
-
-$page_content = include_template('main.php', ['popular_posts' => $popular_posts, 'content_types' => $content_types]);
+$page_content = include_template('main.php', [
+    'popular_posts' => $popular_posts,
+    'content_types' => $content_types,
+    'active_type_content_id' => $active_type_content_id
+]);
 $page = include_template('layout.php', [
     'page_content' => $page_content,
     'user_name' => $user_name,

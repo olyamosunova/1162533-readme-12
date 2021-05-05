@@ -1,4 +1,5 @@
 /* Запросы на добавление типов контента для поста */
+INSERT INTO content_type (title, class_name, label) VALUES ('all', 'post-all', 'Все');
 INSERT INTO content_type (title, class_name, label) VALUES ('text', 'post-text', 'Текст');
 INSERT INTO content_type (title, class_name, label) VALUES ('photo', 'post-photo', 'Фото');
 INSERT INTO content_type (title, class_name, label) VALUES ('video', 'post-video', 'Видео');
@@ -13,36 +14,36 @@ INSERT INTO user (email, login, password, user_name, avatar) VALUES ('second.use
 INSERT INTO post
     (title, content, author, shown_count, user_id, content_type_id)
     VALUES ('Любовь внутри тебя', 'Ты говоришь, что тебя никто не любит, но самом деле это не так, потому что ощущение любви находится внутри тебя.',
-    '', '5', '1', '1');
+    '', '5', '1', '2');
 INSERT INTO post
     (title, content, author, shown_count, user_id, content_type_id)
-    VALUES ('Прекрасное далеко!', 'https://i.ibb.co/B350kK4/background.jpg', '', '8', '2', '2');
+    VALUES ('Прекрасное далеко!', 'https://i.ibb.co/B350kK4/background.jpg', '', '8', '2', '3');
 
 INSERT INTO post
     (title, content, author, shown_count, user_id, content_type_id)
-    VALUES ('Лисичка-сестричка', 'https://youtu.be/WJwi_hgJbpM', '', '2', '1', '3');
+    VALUES ('Лисичка-сестричка', 'https://youtu.be/WJwi_hgJbpM', '', '2', '1', '4');
 
 INSERT INTO post
     (title, content, author, shown_count, user_id, content_type_id)
     VALUES ('Цитата', 'Каждый хочет изменить человечество, но никто не задумывается о том, как изменить себя.',
-    'Лев Толстой', '6', '2', '4');
+    'Лев Толстой', '6', '2', '5');
 
 INSERT INTO post
     (title, content, author, shown_count, user_id, content_type_id)
     VALUES ('Лучшие курсы', 'www.htmlacademy.ru',
-    '', '2', '1', '5');
+    '', '2', '1', '6');
 
 /* Запросы на добавление комментариев к постам */
-INSERT INTO comment (message, user_id, post_id) VALUES ('Да вы философ!', '1', '1');
-INSERT INTO comment (message, user_id, post_id) VALUES ('Вы заставили меня задуматься...', '2', '1');
-INSERT INTO comment (message, user_id, post_id) VALUES ('Красивое фото!', '1', '2');
-INSERT INTO comment (message, user_id, post_id) VALUES ('А где это снято?', '2', '2');
-INSERT INTO comment (message, user_id, post_id) VALUES ('Хороший монтаж!', '1', '3');
-INSERT INTO comment (message, user_id, post_id) VALUES ('Вау! Просто захватывающе!', '2', '3');
-INSERT INTO comment (message, user_id, post_id) VALUES ('Все-таки какие вещи он писал!', '1', '4');
-INSERT INTO comment (message, user_id, post_id) VALUES ('Мой любимый автор!', '2', '4');
-INSERT INTO comment (message, user_id, post_id) VALUES ('Я учился там. Рекомендую!', '1', '5');
-INSERT INTO comment (message, user_id, post_id) VALUES ('Хм, стоит попробовать.', '2', '5');
+INSERT INTO comment (message, user_id, post_id) VALUES ('Да вы философ!', '1', '2');
+INSERT INTO comment (message, user_id, post_id) VALUES ('Вы заставили меня задуматься...', '2', '2');
+INSERT INTO comment (message, user_id, post_id) VALUES ('Красивое фото!', '1', '3');
+INSERT INTO comment (message, user_id, post_id) VALUES ('А где это снято?', '2', '3');
+INSERT INTO comment (message, user_id, post_id) VALUES ('Хороший монтаж!', '1', '4');
+INSERT INTO comment (message, user_id, post_id) VALUES ('Вау! Просто захватывающе!', '2', '4');
+INSERT INTO comment (message, user_id, post_id) VALUES ('Все-таки какие вещи он писал!', '1', '5');
+INSERT INTO comment (message, user_id, post_id) VALUES ('Мой любимый автор!', '2', '5');
+INSERT INTO comment (message, user_id, post_id) VALUES ('Я учился там. Рекомендую!', '1', '6');
+INSERT INTO comment (message, user_id, post_id) VALUES ('Хм, стоит попробовать.', '2', '6');
 
 /* Запрос на получение списка постов с сортировкой по популярности вместе с именами авторов и типом контента */
 SELECT p.id, p.title, p.content, p.author, p.shown_count, u.login, c.title, p.date_add

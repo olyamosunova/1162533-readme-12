@@ -42,9 +42,12 @@ function get_post_content_types($con) {
 /**
  * Получение списка популярных постов
  * @param mysqli $con
+ * @param number $active_type_content_id
  * @return array
  */
-function get_popular_posts($con) {
+function get_popular_posts($con, $active_type_content_id) {
+    $active_type_content_id = $active_type_content_id ? $active_type_content_id : 1;
+
     $sql_post_popular = "
 SELECT
     p.id,
@@ -59,7 +62,11 @@ SELECT
     p.date_add
 FROM post p
 JOIN user u ON p.user_id = u.id
-JOIN content_type c ON p.content_type_id = c.id
+JOIN content_type c ON p.content_type_id =  c.id
+WHERE
+$active_type_content_id > 1 AND p.content_type_id = $active_type_content_id
+OR
+$active_type_content_id = 1 AND p.content_type_id >= $active_type_content_id
 ORDER BY p.shown_count DESC
 LIMIT 6;";
 
