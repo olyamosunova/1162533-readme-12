@@ -79,3 +79,84 @@ LIMIT 6;";
 
     return $popular_posts;
 }
+
+function get_post($con, $post_id) {
+    $sql_post = "
+SELECT
+    p.id,
+    p.date_add,
+    p.title,
+    p.content,
+    p.author,
+    p.shown_count,
+    p.user_id,
+    c.class_name AS content_type_name,
+    (SELECT COUNT(1) FROM likes WHERE likes.post_id = p.id) AS likes_count,
+    (SELECT COUNT(1) FROM comment WHERE comment.post_id = p.id) AS comments_count
+FROM post p
+JOIN content_type c ON p.content_type_id = c.id
+WHERE p.id = $post_id";
+    $result_post = mysqli_query($con, $sql_post);
+    $post = null;
+
+    if ($result_post) {
+        $post = mysqli_fetch_all($result_post, MYSQLI_ASSOC);
+    }
+
+    return $post ? $post[0] : $post;
+}
+
+function get_post_hashtags($con, $post_id) {
+    $sql_hashtags = "SELECT ph.hashtag_id, h.title FROM PostHashtag ph JOIN hashtag h ON ph.hashtag_id = h.id WHERE ph.post_id = $post_id";
+    $result_hashtags = mysqli_query($con, $sql_hashtags);
+    $hashtags = null;
+
+    if ($result_hashtags) {
+        $hashtags = mysqli_fetch_all($result_hashtags, MYSQLI_ASSOC);
+    }
+
+    return $hashtags;
+}
+
+function get_info_about_post_author($con, $author_id) {
+    $sql_author_info = "
+SELECT
+    u.id,
+    u.user_name,
+    u.avatar,
+    u.date_add,
+    (SELECT COUNT(1) FROM subscription WHERE subscription.user_id = u.id) AS count_followers,
+    (SELECT COUNT(1) FROM post WHERE post.user_id = u.id) AS count_posts
+FROM user u
+WHERE u.id = $author_id
+GROUP BY u.id";
+    $result_author_info = mysqli_query($con, $sql_author_info);
+    $author = null;
+
+    if ($result_author_info) {
+        $author = mysqli_fetch_all($result_author_info, MYSQLI_ASSOC);
+    }
+
+    return $author[0];
+}
+
+function get_comments_for_post($con, $post_id) {
+    $sql_comments = "
+SELECT
+    c.id,
+    c.date_add,
+    c.message,
+    u.user_name AS author_name,
+    u.avatar AS author_avatar
+FROM comment c
+JOIN user u ON c.user_id = u.id
+WHERE c.post_id = $post_id";
+    $result_comments = mysqli_query($con, $sql_comments);
+    $comments = null;
+
+    if ($result_comments) {
+        $comments = mysqli_fetch_all($result_comments, MYSQLI_ASSOC);
+    }
+
+    return $comments;
+}

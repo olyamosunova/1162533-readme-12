@@ -124,7 +124,7 @@
                                 <time class="post__time"
                                       datetime="<?= $post['date_add'] ?>"
                                       title="<?= date_format(date_create($post['date_add']), 'd.m.Y h:i') ?>">
-                                    <?= format_date($post['date_add']) ?></time>
+                                    <?= format_publication_date($post['date_add']) ?></time>
                             </div>
                         </a>
                     </div>
