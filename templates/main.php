@@ -35,18 +35,26 @@
         <div class="popular__filters filters">
             <b class="popular__filters-caption filters__caption">Тип контента:</b>
             <ul class="popular__filters-list filters__list">
-                <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                    <a class="filters__button filters__button--ellipse filters__button--all filters__button--active" href="#">
-                        <span>Все</span>
-                    </a>
-                </li>
                 <?php foreach ($content_types as $key => $type): ?>
-                    <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--<?= $type['title'] ?> button" href="#">
-                            <span class="visually-hidden"><?= $type['label'] ?></span>
-                            <svg class="filters__icon" width="22" height="18">
-                                <use xlink:href="#icon-filter-<?= $type['title'] ?>"></use>
-                            </svg>
+                    <li
+                        class="popular__filters-item filters__item
+                               <?= $type['title'] == 'all' ? 'popular__filters-item--all filters__item--all' : '' ?>">
+                        <a
+                            class="filters__button filters__button--<?= $type['title'] ?>
+                            <?= $type['title'] == 'all' ? 'filters__button--ellipse' : '' ?>
+                            <?= $active_type_content_id == $type['id'] ||
+                            (!$active_type_content_id && $type['title'] == 'all')? 'filters__button--active' : '' ?>
+                            button"
+                            href="<?= get_link_content_type($type['id']) ?>">
+
+                            <?php if ($type['title'] !== 'all'): ?>
+                                <span class="visually-hidden"><?= $type['label'] ?></span>
+                                <svg class="filters__icon" width="22" height="18">
+                                    <use xlink:href="#icon-filter-<?= $type['title'] ?>"></use>
+                                </svg>
+                            <?php else: ?>
+                                <span><?= $type['label'] ?></span>
+                            <?php endif; ?>
                         </a>
                     </li>
                 <?php endforeach; ?>
@@ -57,7 +65,9 @@
         <?php foreach ($popular_posts as $key => $post): ?>
             <article class="popular__post post <?= $post['type'] ?>">
                 <header class="post__header">
-                    <h2><?= htmlspecialchars($post['title']) ?></h2>
+                    <h2>
+                        <a href="<?= get_url_post($post['id']) ?>"><?= htmlspecialchars($post['title']) ?></a>
+                    </h2>
                 </header>
                 <div class="post__main">
                     <?php if ($post['type'] == 'post-quote'): ?>
@@ -111,11 +121,10 @@
                             </div>
                             <div class="post__info">
                                 <b class="post__author-name"><?= $post['user_name'] ?></b>
-                                <?php $date = generate_random_date($key); ?>
                                 <time class="post__time"
-                                      datetime="<?= $date ?>"
-                                      title="<?= date_format(date_create($date), 'd.m.Y h:i') ?>">
-                                    <?= format_date($date) ?></time>
+                                      datetime="<?= $post['date_add'] ?>"
+                                      title="<?= date_format(date_create($post['date_add']), 'd.m.Y h:i') ?>">
+                                    <?= format_publication_date($post['date_add']) ?></time>
                             </div>
                         </a>
                     </div>
@@ -128,14 +137,14 @@
                                 <svg class="post__indicator-icon post__indicator-icon--like-active" width="20" height="17">
                                     <use xlink:href="#icon-heart-active"></use>
                                 </svg>
-                                <span>0</span>
+                                <span><?= $post['likes_count'] ?></span>
                                 <span class="visually-hidden">количество лайков</span>
                             </a>
                             <a class="post__indicator post__indicator--comments button" href="#" title="Комментарии">
                                 <svg class="post__indicator-icon" width="19" height="17">
                                     <use xlink:href="#icon-comment"></use>
                                 </svg>
-                                <span>0</span>
+                                <span><?= $post['comments_count'] ?></span>
                                 <span class="visually-hidden">количество комментариев</span>
                             </a>
                         </div>
