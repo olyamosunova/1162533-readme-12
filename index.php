@@ -1,5 +1,6 @@
 <?php
 require('helpers.php');
+require('utils.php');
 require('db.php');
 
 define("SPACE_SYMBOL_COUNT", 1);

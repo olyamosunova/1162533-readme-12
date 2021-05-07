@@ -59,19 +59,26 @@ SELECT
     p.shown_count,
     u.login,
     c.class_name as type,
-    p.date_add
+    p.date_add,
+    (SELECT COUNT(1) FROM likes WHERE likes.post_id = p.id) AS likes_count,
+    (SELECT COUNT(1) FROM comment WHERE comment.post_id = p.id) AS comments_count
 FROM post p
 JOIN user u ON p.user_id = u.id
 JOIN content_type c ON p.content_type_id =  c.id
 WHERE
-$active_type_content_id > 1 AND p.content_type_id = $active_type_content_id
+? > 1 AND p.content_type_id = ?
 OR
-$active_type_content_id = 1 AND p.content_type_id >= $active_type_content_id
+? = 1 AND p.content_type_id >= ?
 ORDER BY p.shown_count DESC
 LIMIT 6;";
 
-    $result_popular_post = mysqli_query($con, $sql_post_popular);
     $popular_posts = [];
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql_post_popular,
+        [$active_type_content_id, $active_type_content_id, $active_type_content_id, $active_type_content_id]);
+    mysqli_stmt_execute($stmt);
+    $result_popular_post = mysqli_stmt_get_result($stmt);
 
     if ($result_popular_post) {
         $popular_posts = mysqli_fetch_all($result_popular_post, MYSQLI_ASSOC);
@@ -95,8 +102,14 @@ SELECT
     (SELECT COUNT(1) FROM comment WHERE comment.post_id = p.id) AS comments_count
 FROM post p
 JOIN content_type c ON p.content_type_id = c.id
-WHERE p.id = $post_id";
-    $result_post = mysqli_query($con, $sql_post);
+WHERE p.id = ?";
+
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql_post,
+        [$post_id]);
+    mysqli_stmt_execute($stmt);
+    $result_post = mysqli_stmt_get_result($stmt);
     $post = null;
 
     if ($result_post) {
@@ -107,8 +120,13 @@ WHERE p.id = $post_id";
 }
 
 function get_post_hashtags($con, $post_id) {
-    $sql_hashtags = "SELECT ph.hashtag_id, h.title FROM PostHashtag ph JOIN hashtag h ON ph.hashtag_id = h.id WHERE ph.post_id = $post_id";
-    $result_hashtags = mysqli_query($con, $sql_hashtags);
+    $sql_hashtags = "SELECT ph.hashtag_id, h.title FROM PostHashtag ph JOIN hashtag h ON ph.hashtag_id = h.id WHERE ph.post_id = ?";
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql_hashtags,
+        [$post_id]);
+    mysqli_stmt_execute($stmt);
+    $result_hashtags = mysqli_stmt_get_result($stmt);
     $hashtags = null;
 
     if ($result_hashtags) {
@@ -128,9 +146,14 @@ SELECT
     (SELECT COUNT(1) FROM subscription WHERE subscription.user_id = u.id) AS count_followers,
     (SELECT COUNT(1) FROM post WHERE post.user_id = u.id) AS count_posts
 FROM user u
-WHERE u.id = $author_id
+WHERE u.id = ?
 GROUP BY u.id";
-    $result_author_info = mysqli_query($con, $sql_author_info);
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql_author_info,
+        [$author_id]);
+    mysqli_stmt_execute($stmt);
+    $result_author_info = mysqli_stmt_get_result($stmt);
     $author = null;
 
     if ($result_author_info) {
@@ -150,8 +173,13 @@ SELECT
     u.avatar AS author_avatar
 FROM comment c
 JOIN user u ON c.user_id = u.id
-WHERE c.post_id = $post_id";
-    $result_comments = mysqli_query($con, $sql_comments);
+WHERE c.post_id = ?";
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql_comments,
+        [$post_id]);
+    mysqli_stmt_execute($stmt);
+    $result_comments = mysqli_stmt_get_result($stmt);
     $comments = null;
 
     if ($result_comments) {
