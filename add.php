@@ -18,6 +18,14 @@ $post_tabs = [
     'link' => 'ссылка',
 ];
 
+$post_form_title = [
+    'photo' => 'Форма добавления фото',
+    'video' => 'Форма добавления видео',
+    'text' => 'Форма добавления текста',
+    'quote' => 'Форма добавления цитаты',
+    'link' => 'Форма добавления ссылки',
+];
+
 $form_validations = [
     'photo' => [
         'post-heading' => [
@@ -189,9 +197,16 @@ function get_post_val($name) {
     return count($_POST) && $_POST[$name] ? htmlspecialchars($_POST[$name]) : '';
 };
 
-$active_form = include_template('adding-posts/adding-post-' . $active_tab  . '.php', [
+$form_fields = include_template('adding-posts/adding-post-' . $active_tab  . '.php', [
     'active_tab' => $active_tab,
     'errors' => $errors
+]);
+
+$active_form = include_template('adding-posts/adding-post-form.php', [
+    'active_tab' => $active_tab,
+    'errors' => $errors,
+    'form_title' => $post_form_title[$active_tab],
+    'fields' => $form_fields
 ]);
 
 $page_content = include_template('adding-post.php', [
