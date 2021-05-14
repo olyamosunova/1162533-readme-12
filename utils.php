@@ -115,6 +115,8 @@ function upload_file($file_name, $file_url) {
     $file_name = basename($_POST[$file_url]);
     $file_path = __DIR__ . '/uploads/';
     file_put_contents($file_path . $file_name, $image_content);
+
+    return '/uploads/' .  $file_name;
 };
 
 function save_image($name) {
@@ -125,7 +127,7 @@ function save_image($name) {
     $file_name = $_FILES[$name]['name'];
     $file_path = __DIR__ . '/uploads/';
     move_uploaded_file($_FILES[$name]['tmp_name'], $file_path . $file_name);
-    return $file_path . $file_name;
+    return '/uploads/' . $file_name;
 };
 
 
