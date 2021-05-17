@@ -171,7 +171,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $file_url = null;
 
         if ($active_tab === 'photo') {
-            $file_url = upload_file('userpic-file-photo', 'photo-url');
+
+            if (isset($_FILES['userpic-file-photo']) && $_FILES['userpic-file-photo']['error'] === 0) {
+                $file_url = save_image($_FILES['userpic-file-photo']);
+            } else {
+                $file_url = upload_file($_POST['photo-url']);
+            }
         }
 
         $post_type_id = $content_types[array_search($active_tab, array_column($content_types, 'title'))]['id'];

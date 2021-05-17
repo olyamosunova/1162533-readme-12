@@ -106,27 +106,20 @@ function get_text_count_shown($count) {
     return $count . " " . get_noun_plural_form($count, 'просмотр', 'просмотра', 'просмотров');
 };
 
-function upload_file($file_name, $file_url) {
-    if (isset($_FILES[$file_name]) && $_FILES[$file_name]['error'] !== 4) {
-        return save_image($file_name);
-    }
-
-    $image_content = file_get_contents($_POST[$file_url]);
-    $file_name = basename($_POST[$file_url]);
+function upload_file($file_url) {
+    $image_content = file_get_contents($file_url);
+    $file_name = basename($file_url);
     $file_path = __DIR__ . '/uploads/';
     file_put_contents($file_path . $file_name, $image_content);
 
     return '/uploads/' .  $file_name;
 };
 
-function save_image($name) {
-    if ($_FILES[$name]['error'] !== 0) {
-        return false;
-    }
-
-    $file_name = $_FILES[$name]['name'];
+function save_image($file) {
+    $file_name = $file['name'];
     $file_path = __DIR__ . '/uploads/';
-    move_uploaded_file($_FILES[$name]['tmp_name'], $file_path . $file_name);
+    move_uploaded_file($file['tmp_name'], $file_path . $file_name);
+
     return '/uploads/' . $file_name;
 };
 
@@ -215,7 +208,7 @@ function save_tags($con, $hashtags, $post_id) {
                 $hashtag_id = mysqli_insert_id($con);
             }
 
-            $sql_add_post_hashtag = "INSERT INTO posthashtag SET post_id = ?, hashtag_id = ?";
+            $sql_add_post_hashtag = "INSERT INTO PostHashtag SET post_id = ?, hashtag_id = ?";
             $stmt_post_hashtags = db_get_prepare_stmt(
                 $con,
                 $sql_add_post_hashtag,
