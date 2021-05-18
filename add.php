@@ -172,10 +172,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($active_tab === 'photo') {
 
+            $photo_path = '/uploads/';
+
             if (isset($_FILES['userpic-file-photo']) && $_FILES['userpic-file-photo']['error'] === 0) {
-                $file_url = save_image($_FILES['userpic-file-photo']);
+                $file_url = save_image($_FILES['userpic-file-photo'], $photo_path);
             } else {
-                $file_url = upload_file($_POST['photo-url']);
+                $file_url = upload_file($_POST['photo-url'], $photo_path);
             }
         }
 
@@ -196,10 +198,6 @@ function get_tabs_link($name) {
     $url = "/" . $scriptname . "?tab=" . $name;
 
     return $url;
-};
-
-function get_post_val($name) {
-    return count($_POST) && $_POST[$name] ? htmlspecialchars($_POST[$name]) : '';
 };
 
 $form_fields = include_template('adding-posts/adding-post-' . $active_tab  . '.php', [

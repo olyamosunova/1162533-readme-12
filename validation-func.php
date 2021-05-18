@@ -52,7 +52,7 @@ function validate_upload_photo($name) {
 
 function validate_url($name) {
     if ($_POST[$name] && !filter_var($_POST[$name], FILTER_VALIDATE_URL)) {
-        return "Значение поля должно быть корректным URL-адресом";
+        return 'Значение поля должно быть корректным URL-адресом';
     }
 
     return false;
@@ -70,4 +70,34 @@ function validate_photo($name) {
 
         return 'Неверный формат загружаемого файла. Допустимый формат: ' . implode(' , ', $valid_image_types);
     }
+
+    return false;
+};
+
+function validate_email($name) {
+    if ($_POST[$name] && !filter_var($_POST[$name], FILTER_VALIDATE_EMAIL)) {
+        return 'Значение поля должно быть корректным email-адресом';
+    }
+
+    return false;
+};
+
+function validate_passwords_repeat($pass1, $pass2) {
+    if ($_POST[$pass1] !== $_POST[$pass2]) {
+        return 'Пароли не совпадают';
+    }
+
+    return false;
+};
+
+function validate_password($name) {
+    if (strlen($_POST[$name]) < 5) {
+        return 'Пароль должен состоять не менее чем из 5 символов';
+    }
+
+    if (!preg_match('/^\S*$/', $_POST[$name])) {
+        return 'Пароль не должен содержать пробелы';
+    }
+
+    return false;
 };
