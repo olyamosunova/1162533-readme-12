@@ -106,28 +106,35 @@ function get_text_count_shown($count) {
     return $count . " " . get_noun_plural_form($count, 'просмотр', 'просмотра', 'просмотров');
 };
 
-function upload_file($file_name, $file_url) {
-    if (isset($_FILES[$file_name]) && $_FILES[$file_name]['error'] !== 4) {
-        return save_image($file_name);
-    }
-
-    $image_content = file_get_contents($_POST[$file_url]);
-    $file_name = basename($_POST[$file_url]);
-    $file_path = __DIR__ . '/uploads/';
-    file_put_contents($file_path . $file_name, $image_content);
-
-    return '/uploads/' .  $file_name;
+function get_post_val($name) {
+    return count($_POST) && $_POST[$name] ? htmlspecialchars($_POST[$name]) : '';
 };
 
-function save_image($name) {
-    if ($_FILES[$name]['error'] !== 0) {
-        return false;
+function upload_file($file_url, $path) {
+    $image_content = file_get_contents($file_url);
+    $file_name = basename($file_url);
+    $file_path = __DIR__ . $path;
+
+    if (!file_exists($file_path)) {
+        mkdir($file_path, 0777, true);
     }
 
-    $file_name = $_FILES[$name]['name'];
-    $file_path = __DIR__ . '/uploads/';
-    move_uploaded_file($_FILES[$name]['tmp_name'], $file_path . $file_name);
-    return '/uploads/' . $file_name;
+    file_put_contents($file_path . $file_name, $image_content);
+
+    return $path .  $file_name;
+};
+
+function save_image($file, $path) {
+    $file_name = $file['name'];
+    $file_path = __DIR__ . $path;
+
+    if (!file_exists($file_path)) {
+        mkdir($file_path, 0777, true);
+    }
+
+    move_uploaded_file($file['tmp_name'], $file_path . $file_name);
+
+    return $path . $file_name;
 };
 
 
@@ -215,7 +222,7 @@ function save_tags($con, $hashtags, $post_id) {
                 $hashtag_id = mysqli_insert_id($con);
             }
 
-            $sql_add_post_hashtag = "INSERT INTO posthashtag SET post_id = ?, hashtag_id = ?";
+            $sql_add_post_hashtag = "INSERT INTO PostHashtag SET post_id = ?, hashtag_id = ?";
             $stmt_post_hashtags = db_get_prepare_stmt(
                 $con,
                 $sql_add_post_hashtag,
@@ -224,4 +231,49 @@ function save_tags($con, $hashtags, $post_id) {
             mysqli_stmt_get_result($stmt_post_hashtags);
         }
     }
+};
+
+function check_email_in_db($con, $email) {
+    $sql = "SELECT id, email FROM user WHERE email = ?";
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql,
+        [$email]);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($result && empty(mysqli_fetch_all($result, MYSQLI_ASSOC))) {
+        return false;
+    }
+
+    return 'Данный email уже используется другим пользователем';
+};
+
+function register_user($con, $post, $file_url = null) {
+    $data = [
+        'id' => null,
+        'date_add' => date('Y-m-d H:i:s'),
+        'email' => $post['registration-email'],
+        'login' => $post['registration-login'],
+        'password' => password_hash($post['registration-password'], PASSWORD_DEFAULT),
+        'user_name' => null,
+        'avatar' => $file_url
+    ];
+
+    $fields = [];
+    $data_for_query = [];
+    foreach ($data as $key => $item) {
+        $fields[] = "{$key} = ?";
+        array_push($data_for_query, $item);
+    }
+
+    $fields_for_query = implode(', ', $fields);
+    $sql = "INSERT INTO user SET {$fields_for_query}";
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql,
+        $data_for_query);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_get_result($stmt);
+    return mysqli_insert_id($con);
 };

@@ -7,8 +7,8 @@
             type="text"
             name="post-link"
             value="<?= get_post_val('post-link') ?>">
-        <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
         <?php if(isset($errors) && isset($errors['post-link'])): ?>
+            <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
             <div class="form__error-text">
                 <h3 class="form__error-title">Заголовок сообщения</h3>
                 <p class="form__error-desc"><?= $errors['post-link']['message'] ?></p>

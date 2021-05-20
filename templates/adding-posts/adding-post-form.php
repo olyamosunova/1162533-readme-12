@@ -14,8 +14,8 @@
                             name="post-heading"
                             value="<?= get_post_val('post-heading') ?>"
                             placeholder="Введите заголовок">
-                        <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                         <?php if(isset($errors) && isset($errors['post-heading'])): ?>
+                            <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                             <div class="form__error-text">
                                 <h3 class="form__error-title">Заголовок сообщения</h3>
                                 <p class="form__error-desc"><?= $errors['post-heading']['message'] ?></p>
@@ -34,8 +34,8 @@
                             name="post-tags"
                             value="<?= get_post_val('post-tags') ?>"
                             placeholder="Введите теги">
-                        <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                         <?php if(isset($errors) && isset($errors['post-tags'])): ?>
+                            <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                             <div class="form__error-text">
                                 <h3 class="form__error-title">Заголовок сообщения</h3>
                                 <p class="form__error-desc"><?= $errors['post-tags']['message'] ?></p>
