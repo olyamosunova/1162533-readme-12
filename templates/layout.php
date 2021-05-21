@@ -112,7 +112,7 @@ $is_auth = rand(0, 1);
                             <a class="header__user-button header__authorization-button button" href="login.html">Вход</a>
                         </li>
                         <li>
-                            <a class="header__user-button header__user-button--active header__register-button button">Регистрация</a>
+                            <a href="registration.php" class="header__user-button <?= $is_registration_page ? 'header__user-button--active' : '' ?>  header__register-button button">Регистрация</a>
                         </li>
                     </ul>
                 <?php endif; ?>
@@ -178,7 +178,7 @@ $is_auth = rand(0, 1);
         </div>
     </div>
 </footer>
-<!--<script src="libs/dropzone.js"></script>-->
+<script src="libs/dropzone.js"></script>
 <!--<script src="js/dropzone-settings.js"></script>-->
 <script src="js/main.js"></script>
 </body>

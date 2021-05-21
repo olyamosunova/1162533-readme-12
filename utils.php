@@ -155,7 +155,7 @@ function save_post($con, $post, $post_type_id, $file_url = null) {
             if ($file_url) {
                 $data['content'] = $file_url;
             } else {
-                $data['content'] = $post['photo-url'];
+                $data['content'] = $post['photo-url']['photo-url'];
             }
             break;
 
@@ -243,10 +243,10 @@ function check_email_in_db($con, $email) {
     $result = mysqli_stmt_get_result($stmt);
 
     if ($result && empty(mysqli_fetch_all($result, MYSQLI_ASSOC))) {
-        return false;
+        return true;
     }
 
-    return 'Данный email уже используется другим пользователем';
+    return false;
 };
 
 function register_user($con, $post, $file_url = null) {
