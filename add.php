@@ -1,11 +1,15 @@
 <?php
+require('init.php');
 require('helpers.php');
 require('utils.php');
 require('validation-func.php');
 require('db.php');
 
+if (empty($_SESSION)) {
+    header("Location: /index.php");
+}
+
 $con = get_db_connection();
-$user_name = 'Olya';
 $title = 'readme: добавление публикации';
 $content_types = get_post_content_types($con);
 $active_tab = isset($_POST['active-tab']) ? $_POST['active-tab'] : filter_input(INPUT_GET, 'tab') ?? 'photo';
@@ -182,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $post_type_id = $content_types[array_search($active_tab, array_column($content_types, 'title'))]['id'];
-        $post_id = save_post($con, $values, $post_type_id, $file_url);
+        $post_id = save_post($con, $values, $post_type_id, $file_url, $_SESSION['id']);
         if (!empty($values['post-tags'])) {
             save_tags($con, $values['post-tags'], $post_id);
         }
@@ -220,8 +224,10 @@ $page_content = include_template('adding-post.php', [
 
 $page = include_template('layout.php', [
     'page_content' => $page_content,
-    'user_name' => $user_name,
-    'title' => $title
+    'title' => $title,
+    'is_auth' =>$_SESSION['is_auth'],
+    'user_name' => $_SESSION['user_name'],
+    'user_avatar' => $_SESSION['avatar']
 ]);
 
 print($page);

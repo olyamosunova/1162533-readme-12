@@ -85,7 +85,7 @@ LIMIT 6;";
     }
 
     return $popular_posts;
-}
+};
 
 function get_post($con, $post_id) {
     $sql_post = "
@@ -117,7 +117,7 @@ WHERE p.id = ?";
     }
 
     return $post ? $post[0] : $post;
-}
+};
 
 function get_post_hashtags($con, $post_id) {
     $sql_hashtags = "SELECT ph.hashtag_id, h.title FROM PostHashtag ph JOIN hashtag h ON ph.hashtag_id = h.id WHERE ph.post_id = ?";
@@ -134,7 +134,7 @@ function get_post_hashtags($con, $post_id) {
     }
 
     return $hashtags;
-}
+};
 
 function get_info_about_post_author($con, $author_id) {
     $sql_author_info = "
@@ -143,6 +143,7 @@ SELECT
     u.user_name,
     u.avatar,
     u.date_add,
+    u.login,
     (SELECT COUNT(1) FROM subscription WHERE subscription.user_id = u.id) AS count_followers,
     (SELECT COUNT(1) FROM post WHERE post.user_id = u.id) AS count_posts
 FROM user u
@@ -161,7 +162,7 @@ GROUP BY u.id";
     }
 
     return $author[0];
-}
+};
 
 function get_comments_for_post($con, $post_id) {
     $sql_comments = "
@@ -187,4 +188,71 @@ WHERE c.post_id = ?";
     }
 
     return $comments;
-}
+};
+
+function get_user_data($con, $user_email) {
+    $sql = "SELECT * FROM user WHERE email = ?";
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql,
+        [$user_email]);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $user_data = null;
+
+    if ($result) {
+        $user_data = mysqli_fetch_assoc($result);
+    }
+
+    return $user_data;
+};
+
+function get_posts_for_me($con, $active_type_content_id = 1, $user_id) {
+
+    $sql_posts = "
+SELECT
+    p.id,
+    p.title,
+    p.content,
+    p.author,
+    u.user_name,
+    u.avatar,
+    p.shown_count,
+    u.login,
+    c.class_name as type,
+    p.date_add,
+    (SELECT COUNT(1) FROM likes WHERE likes.post_id = p.id) AS likes_count,
+    (SELECT COUNT(1) FROM comment WHERE comment.post_id = p.id) AS comments_count
+FROM post p
+JOIN user u ON p.user_id = u.id
+JOIN content_type c ON p.content_type_id =  c.id
+JOIN subscription ON p.user_id = subscription.user_id
+WHERE
+? > 1 AND p.content_type_id = ?
+OR
+? = 1 AND p.content_type_id >= ?
+AND
+subscription.follower_id = ?
+ORDER BY p.date_add DESC;";
+
+//    print_r($active_type_content_id);
+
+    $posts = [];
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql_posts,
+        [
+            $active_type_content_id,
+            $active_type_content_id,
+            $active_type_content_id,
+            $active_type_content_id,
+            $user_id]);
+    mysqli_stmt_execute($stmt);
+    $result_posts = mysqli_stmt_get_result($stmt);
+
+    if ($result_posts) {
+        $posts = mysqli_fetch_all($result_posts, MYSQLI_ASSOC);
+    }
+
+    return $posts;
+};

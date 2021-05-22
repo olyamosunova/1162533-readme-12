@@ -1,11 +1,16 @@
 <?php
+require('init.php');
 require('helpers.php');
 require('utils.php');
 require('db.php');
 
+if (empty($_SESSION)) {
+    header("Location: /index.php");
+}
+
 $con = get_db_connection();
-$user_name = 'Olya';
-$title = 'readme: популярное';
+$title = 'readme: пост';
+$user_name = $_SESSION['user_name'];
 $post_id = filter_input(INPUT_GET, 'ID');
 
 // Проверяет наличие параметра запроса;
@@ -32,7 +37,9 @@ $page_content = include_template('post-details.php', [
 
 $page = include_template('layout.php', [
     'page_content' => $page_content,
+    'is_auth' =>$_SESSION['is_auth'],
     'user_name' => $user_name,
+    'user_avatar' => $_SESSION['avatar'],
     'title' => $title
 ]);
 print($page);

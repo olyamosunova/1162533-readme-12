@@ -138,7 +138,7 @@
                         </div>
                         <div class="post-details__name-wrapper user__name-wrapper">
                             <a class="post-details__name user__name" href="#">
-                                <span><?= $author_info['user_name'] ?></span>
+                                <span><?= $author_info['user_name'] ?? $author_info['login'] ?></span>
                             </a>
                             <time class="post-details__time user__time" datetime="2014-03-20"><?= format_register_date($author_info['date_add']) ?></time>
                         </div>

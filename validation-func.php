@@ -1,5 +1,47 @@
 <?php
 
+/**
+ * Return result array with message and flag
+ *
+ * @param mixed $value
+ * @param bool $result
+ * @param string $message
+ * @return array
+ */
+function validation_result($value = null, bool $result = true, string $message = 'ok'): array {
+    return ['is_valid' => $result, 'message' => $message, 'value' => $value];
+};
+
+/**
+ * Run validation functions
+ *
+ * @param array $form_validations
+ * @param array $error_field_titles
+ * @return array
+ */
+function validation_validate(array $form_validations, array $error_field_titles): array {
+    $errors = [];
+    $values = [];
+
+    foreach ($form_validations as $key => $validations) {
+        foreach ($validations as $validation) {
+            $result = $validation($key);
+
+            if (!$result['is_valid']) {
+                $errors += [
+                    $key => [
+                        'title' => $error_field_titles[$key],
+                        'message' => $result['message'],
+                    ]
+                ];
+            }
+            $values[$key] = $result['value'];
+        }
+    }
+
+    return ['errors' => $errors, 'values' => $values];
+};
+
 function validate_filled($name) {
     if (empty($_POST[$name])) {
         return validation_result(null, false, 'Это поле должно быть заполнено');
@@ -106,44 +148,4 @@ function validate_password($name) {
     return validation_result($_POST[$name]);
 };
 
-/**
- * Return result array with message and flag
- *
- * @param mixed $value
- * @param bool $result
- * @param string $message
- * @return array
- */
-function validation_result($value = null, bool $result = true, string $message = 'ok'): array {
-    return ['is_valid' => $result, 'message' => $message, 'value' => $value];
-};
 
-/**
- * Run validation functions
- *
- * @param array $form_validations
- * @param array $error_field_titles
- * @return array
- */
-function validation_validate(array $form_validations, array $error_field_titles): array {
-    $errors = [];
-    $values = [];
-
-    foreach ($form_validations as $key => $validations) {
-        foreach ($validations as $validation) {
-            $result = $validation($key);
-
-            if (!$result['is_valid']) {
-                $errors += [
-                    $key => [
-                        'title' => $error_field_titles[$key],
-                        'message' => $result['message'],
-                    ]
-                ];
-            }
-            $values[$key] = $result['value'];
-        }
-    }
-
-    return ['errors' => $errors, 'values' => $values];
-};
