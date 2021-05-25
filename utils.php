@@ -1,4 +1,7 @@
 <?php
+define("SPACE_SYMBOL_COUNT", 1);
+define("ELLIPSIS_SYMBOL_COUNT", 3);
+
 /**
  * Возвращает дату в нужном формате
  * @param date $date
@@ -138,7 +141,7 @@ function save_image($file, $path) {
 };
 
 
-function save_post($con, $post, $post_type_id, $file_url = null) {
+function save_post($con, $post, $post_type_id, $file_url = null, $user_id) {
     $data = [
         'id' => null,
         'date_add' => date('Y-m-d H:i:s'),
@@ -146,7 +149,7 @@ function save_post($con, $post, $post_type_id, $file_url = null) {
         'content' => '',
         'author' => null,
         'shown_count' => 0,
-        'user_id' => 1,
+        'user_id' => $user_id,
         'content_type_id' => $post_type_id
     ];
 
@@ -155,7 +158,7 @@ function save_post($con, $post, $post_type_id, $file_url = null) {
             if ($file_url) {
                 $data['content'] = $file_url;
             } else {
-                $data['content'] = $post['photo-url'];
+                $data['content'] = $post['photo-url']['photo-url'];
             }
             break;
 
@@ -243,10 +246,10 @@ function check_email_in_db($con, $email) {
     $result = mysqli_stmt_get_result($stmt);
 
     if ($result && empty(mysqli_fetch_all($result, MYSQLI_ASSOC))) {
-        return false;
+        return true;
     }
 
-    return 'Данный email уже используется другим пользователем';
+    return false;
 };
 
 function register_user($con, $post, $file_url = null) {
@@ -276,4 +279,59 @@ function register_user($con, $post, $file_url = null) {
     mysqli_stmt_execute($stmt);
     mysqli_stmt_get_result($stmt);
     return mysqli_insert_id($con);
+};
+
+function check_user_author_data($con, $email, $password) {
+    $sql = "SELECT id, email, password FROM user WHERE email = ?";
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql,
+        [$email]);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $user_data = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+    if ($result && !empty($user_data) && password_verify($password, $user_data[0]['password'])) {
+        return true;
+    }
+
+    return false;
+};
+
+function cut_text($text, $count_symbols = 300) {
+    $word_list = explode(" ", $text);
+    $symbols_sum = 0;
+    $new_word_list = null;
+
+    if (mb_strlen($text, 'utf-8') <= $count_symbols) {
+        return '<p>' . $text . '</p>';
+    }
+
+    foreach ($word_list as $word) {
+        $symbols_sum += mb_strlen($word, 'utf-8') + SPACE_SYMBOL_COUNT;
+
+        if ($symbols_sum + ELLIPSIS_SYMBOL_COUNT >= $count_symbols) {
+            $new_word_list[] = '...';
+            break;
+        }
+
+        $new_word_list[] = $word;
+    }
+
+    return '<p>' . implode(' ', $new_word_list) . '</p>' . '<a class="post-text__more-link" href="#">Читать далее</a>';
+};
+
+function get_link_content_type($id) {
+    $scriptname = $_SERVER['SCRIPT_NAME'];
+    $url = $scriptname . "?ID=" . $id;
+
+    return $url;
+};
+
+function get_url_post($id) {
+    return "/post.php?ID=" . $id;
+};
+
+function get_domain($url) {
+    return parse_url($url)['host'] ?? $url;
 };

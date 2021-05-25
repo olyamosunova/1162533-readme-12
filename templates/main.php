@@ -102,7 +102,7 @@
                                     <?=embed_youtube_cover(htmlspecialchars($post['content'])); ?>
     <!--                                <img src="--><?//= $post['content'] ?><!--" alt="Превью к видео" width="360" height="188">-->
                                 </div>
-                                <a href="post-details.html" class="post-video__play-big button">
+                                <a href="<?= $post['content'] ?>" class="post-video__play-big button">
                                     <svg class="post-video__play-big-icon" width="14" height="14">
                                         <use xlink:href="#icon-video-play-big"></use>
                                     </svg>
@@ -121,7 +121,7 @@
                                     <img class="post__author-avatar" src="<?= $post['avatar'] ?>" alt="Аватар пользователя">
                                 </div>
                                 <div class="post__info">
-                                    <b class="post__author-name"><?= $post['user_name'] ?></b>
+                                    <b class="post__author-name"><?= $post['user_name'] ?? $post['login'] ?></b>
                                     <time class="post__time"
                                           datetime="<?= $post['date_add'] ?>"
                                           title="<?= date_format(date_create($post['date_add']), 'd.m.Y h:i') ?>">

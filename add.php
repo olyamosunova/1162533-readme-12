@@ -1,11 +1,15 @@
 <?php
+require('init.php');
 require('helpers.php');
 require('utils.php');
 require('validation-func.php');
 require('db.php');
 
+if (empty($_SESSION)) {
+    header("Location: /index.php");
+}
+
 $con = get_db_connection();
-$user_name = 'Olya';
 $title = 'readme: добавление публикации';
 $content_types = get_post_content_types($con);
 $active_tab = isset($_POST['active-tab']) ? $_POST['active-tab'] : filter_input(INPUT_GET, 'tab') ?? 'photo';
@@ -38,7 +42,13 @@ $form_validations = [
                 return validate_url($name);
             },
             1 => function($name) {
-                return validate_upload_photo($name);
+                return validate_upload_photo($name, 'userpic-file-photo');
+            },
+            2 => function($name) {
+                if (isset($_FILES['userpic-file-photo']) && $_FILES['userpic-file-photo']['error'] === 0) {
+                    return validation_result([$name => ($_POST[$name] ?? null), 'userpic-file-photo' => $_FILES['userpic-file-photo']]);
+                }
+                return validation_result([$name => ($_POST[$name] ?? null), 'userpic-file-photo' => null]);
             }
         ],
         'post-tags' => [
@@ -156,16 +166,10 @@ $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    foreach ($form_validations[$active_tab] as $key => $validations) {
-        foreach ($validations as $validation) {
-            if ($validation($key)) {
-                $errors += [$key => [
-                    'title' => $error_field_titles[$key],
-                    'message' => $validation($key)
-                ]];
-            }
-        }
-    }
+    $validation_result = validation_validate($form_validations[$active_tab], $error_field_titles);
+    $errors = $validation_result['errors'];
+    $values = $validation_result['values'];
+    $values['active-tab'] = $active_tab;
 
     if (empty($errors)) {
         $file_url = null;
@@ -174,18 +178,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $photo_path = '/uploads/';
 
-            if (isset($_FILES['userpic-file-photo']) && $_FILES['userpic-file-photo']['error'] === 0) {
-                $file_url = save_image($_FILES['userpic-file-photo'], $photo_path);
+            if (isset($values['photo-url']['userpic-file-photo'])) {
+                $file_url = save_image($values['photo-url']['userpic-file-photo'], $photo_path);
             } else {
-                $file_url = upload_file($_POST['photo-url'], $photo_path);
+                $file_url = upload_file($values['photo-url']['photo-url'], $photo_path);
             }
         }
 
         $post_type_id = $content_types[array_search($active_tab, array_column($content_types, 'title'))]['id'];
-        $post_id = save_post($con, $_POST, $post_type_id, $file_url);
-
-        if (isset($_POST['post-tags'])) {
-            save_tags($con, $_POST['post-tags'], $post_id);
+        $post_id = save_post($con, $values, $post_type_id, $file_url, $_SESSION['id']);
+        if (!empty($values['post-tags'])) {
+            save_tags($con, $values['post-tags'], $post_id);
         }
 
         $URL = '/post.php?ID=' . $post_id;
@@ -221,8 +224,10 @@ $page_content = include_template('adding-post.php', [
 
 $page = include_template('layout.php', [
     'page_content' => $page_content,
-    'user_name' => $user_name,
-    'title' => $title
+    'title' => $title,
+    'is_auth' =>$_SESSION['is_auth'],
+    'user_name' => $_SESSION['user_name'],
+    'user_avatar' => $_SESSION['avatar']
 ]);
 
 print($page);

@@ -1,60 +1,67 @@
 <?php
+require('init.php');
 require('helpers.php');
 require('utils.php');
+require('validation-func.php');
 require('db.php');
 
-define("SPACE_SYMBOL_COUNT", 1);
-define("ELLIPSIS_SYMBOL_COUNT", 3);
-
-function cut_text($text, $count_symbols = 300) {
-    $word_list = explode(" ", $text);
-    $symbols_sum = 0;
-    $new_word_list = null;
-
-    if (mb_strlen($text, 'utf-8') <= $count_symbols) {
-        return '<p>' . $text . '</p>';
-    }
-
-    foreach ($word_list as $word) {
-        $symbols_sum += mb_strlen($word, 'utf-8') + SPACE_SYMBOL_COUNT;
-
-        if ($symbols_sum + ELLIPSIS_SYMBOL_COUNT >= $count_symbols) {
-            $new_word_list[] = '...';
-            break;
-        }
-
-        $new_word_list[] = $word;
-    }
-
-    return '<p>' . implode(' ', $new_word_list) . '</p>' . '<a class="post-text__more-link" href="#">Читать далее</a>';
-};
-
-function get_link_content_type($id) {
-    $scriptname = pathinfo(__FILE__, PATHINFO_BASENAME);
-    $url = "/" . $scriptname . "?ID=" . $id;
-
-    return $url;
-};
-
-function get_url_post($id) {
-    return "/post.php?ID=" . $id;
-};
+if (!empty($_SESSION)) {
+    header("Location: /feed.php");
+}
 
 $con = get_db_connection();
-$user_name = 'Olya';
-$title = 'readme: популярное';
-$content_types = get_post_content_types($con);
-$active_type_content_id = filter_input(INPUT_GET, 'ID');
-$popular_posts = get_popular_posts($con, $active_type_content_id);
+$title = 'Readme: блог, каким он должен быть';
 
-$page_content = include_template('main.php', [
-    'popular_posts' => $popular_posts,
-    'content_types' => $content_types,
-    'active_type_content_id' => $active_type_content_id
-]);
-$page = include_template('layout.php', [
-    'page_content' => $page_content,
-    'user_name' => $user_name,
-    'title' => $title
+$form_validations = [
+    'login' => [
+        0 => function ($name) {
+            return validate_filled($name);
+        },
+        1 => function ($name) use ($con) {
+            if (!empty($_POST[$name]) && !empty($_POST['password'])) {
+                if (!check_user_author_data($con, $_POST[$name], $_POST['password'])) {
+                    return validation_result(null, false, 'Вы ввели неверный email/пароль.');
+                }
+                return validation_result($_POST[$name]);
+            }
+            return validation_result($_POST[$name]);
+        }
+    ],
+    'password' => [
+        0 => function ($name) {
+            return validate_filled($name);
+        }
+    ]
+];
+
+$error_field_titles = [
+    'login' => 'Логин',
+    'password' => 'Пароль'
+];
+
+$errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $validation_result = validation_validate($form_validations, $error_field_titles);
+    $errors = $validation_result['errors'];
+    $values = $validation_result['values'];
+
+
+    if (empty($errors)) {
+        $user_data = get_user_data($con, $values['login']);
+        $_SESSION['is_auth'] = 1;
+        $_SESSION['user_name'] = $user_data['login'];
+        $_SESSION['avatar'] = $user_data['avatar'];
+        $_SESSION['id'] = $user_data['id'];
+
+        header("Location: /feed.php");
+    }
+}
+
+$page = include_template('anonym.php', [
+    'title' => $title,
+    'errors' => $errors,
+    'class' => 'footer--main'
 ]);
 print($page);
