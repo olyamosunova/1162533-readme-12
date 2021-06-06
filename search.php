@@ -15,7 +15,12 @@ $founded_posts = [];
 if ($search_query_text) {
     $value_query = trim($search_query_text);
 
-    $founded_posts = get_search_results($con, $value_query);
+    if (substr($value_query, 0, 1) === "#") {
+        $value_query = substr($value_query, 1, strlen($value_query));
+        $founded_posts = get_search_hashtag_results($con, $value_query);
+    } else {
+        $founded_posts = get_search_results($con, $value_query);
+    }
 }
 
 $page_content = include_template('search-results.php', [

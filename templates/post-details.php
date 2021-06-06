@@ -75,7 +75,7 @@
                     <?php if (!empty($hashtags)): ?>
                         <ul class="post__tags">
                             <?php foreach ($hashtags as $key => $hashtag): ?>
-                                <li><a href="#">#<?= $hashtag['title'] ?></a></li>
+                                <li><a href="/search.php?search=%23<?= $hashtag['title'] ?>">#<?= $hashtag['title'] ?></a></li>
                             <?php endforeach; ?>
                         </ul>
                     <?php endif; ?>

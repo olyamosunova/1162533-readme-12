@@ -284,3 +284,32 @@ WHERE MATCH(p.title, p.content) AGAINST(?)";
 
     return $posts;
 };
+
+function get_search_hashtag_results($con, $search_value) {
+    $sql = "SELECT
+    p.*,
+    u.login,
+    u.user_name,
+    u.avatar,
+    ct.class_name AS type,
+    (SELECT COUNT(1) FROM likes WHERE likes.post_id = p.id) AS likes_count,
+    (SELECT COUNT(1) FROM comment WHERE comment.post_id = p.id) AS comments_count
+FROM post p
+JOIN user u ON u.id = p.user_id
+JOIN content_type ct ON ct.id = p.content_type_id
+WHERE p.id IN (SELECT ph.post_id FROM posthashtag ph WHERE ph.hashtag_id = (SELECT h.id FROM hashtag h WHERE h.title = ?))
+ORDER BY p.date_add DESC";
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql,
+        [$search_value]);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $posts = [];
+
+    if ($result) {
+        $posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    }
+
+    return $posts;
+};
