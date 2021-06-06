@@ -5,9 +5,7 @@ require('utils.php');
 require('validation-func.php');
 require('db.php');
 
-if (empty($_SESSION)) {
-    header("Location: /index.php");
-}
+init_check_auth('/');
 
 $con = get_db_connection();
 $page_name = 'popular';
