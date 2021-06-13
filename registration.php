@@ -1,8 +1,11 @@
 <?php
+require('init.php');
 require('helpers.php');
 require('utils.php');
 require('validation-func.php');
 require('db.php');
+
+init_check_not_auth('/feed.php');
 
 $con = get_db_connection();
 $title = 'readme: регистрация';

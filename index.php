@@ -5,9 +5,7 @@ require('utils.php');
 require('validation-func.php');
 require('db.php');
 
-if (!empty($_SESSION)) {
-    header("Location: /feed.php");
-}
+init_check_not_auth('/feed.php');
 
 $con = get_db_connection();
 $title = 'Readme: блог, каким он должен быть';
@@ -50,12 +48,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         $user_data = get_user_data($con, $values['login']);
-        $_SESSION['is_auth'] = 1;
-        $_SESSION['user_name'] = $user_data['login'];
-        $_SESSION['avatar'] = $user_data['avatar'];
-        $_SESSION['id'] = $user_data['id'];
 
-        header("Location: /feed.php");
+        init_login($user_data, '/feed.php');
+//        $_SESSION['is_auth'] = 1;
+//        $_SESSION['user_name'] = $user_data['login'];
+//        $_SESSION['avatar'] = $user_data['avatar'];
+//        $_SESSION['id'] = $user_data['id'];
+//
+//        header("Location: /feed.php");
     }
 }
 

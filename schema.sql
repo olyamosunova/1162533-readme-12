@@ -67,3 +67,5 @@ CREATE TABLE PostHashtag (
     post_id INT(11),
     hashtag_id INT(11)
 );
+
+CREATE FULLTEXT INDEX post_ft_search ON post(title, content);

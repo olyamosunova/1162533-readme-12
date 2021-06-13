@@ -4,9 +4,7 @@ require('helpers.php');
 require('utils.php');
 require('db.php');
 
-if (empty($_SESSION)) {
-    header("Location: /index.php");
-}
+init_check_auth('/');
 
 $con = get_db_connection();
 $title = 'readme: пост';
