@@ -63,7 +63,7 @@ CREATE TABLE content_type (
     label VARCHAR(128)
 );
 
-CREATE TABLE PostHashtag (
+CREATE TABLE posthashtag (
     post_id INT(11),
     hashtag_id INT(11)
 );

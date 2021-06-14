@@ -120,7 +120,7 @@ WHERE p.id = ?";
 };
 
 function get_post_hashtags($con, $post_id) {
-    $sql_hashtags = "SELECT ph.hashtag_id, h.title FROM PostHashtag ph JOIN hashtag h ON ph.hashtag_id = h.id WHERE ph.post_id = ?";
+    $sql_hashtags = "SELECT ph.hashtag_id, h.title FROM posthashtag ph JOIN hashtag h ON ph.hashtag_id = h.id WHERE ph.post_id = ?";
     $stmt = db_get_prepare_stmt(
         $con,
         $sql_hashtags,
@@ -207,7 +207,7 @@ function get_user_data($con, $user_email) {
     return $user_data;
 };
 
-function get_posts_for_me($con, $active_type_content_id = 1, $user_id) {
+function get_posts_for_me($con, $user_id, $active_type_content_id = 1) {
 
     $sql_posts = "
 SELECT

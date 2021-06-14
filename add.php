@@ -184,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $post_type_id = $content_types[array_search($active_tab, array_column($content_types, 'title'))]['id'];
-        $post_id = save_post($con, $values, $post_type_id, $file_url, $_SESSION['id']);
+        $post_id = save_post($con, $values, $post_type_id, $_SESSION['id'], $file_url);
         if (!empty($values['post-tags'])) {
             save_tags($con, $values['post-tags'], $post_id);
         }

@@ -55,13 +55,13 @@ INSERT INTO hashtag SET title = 'познавательноевидео';
 INSERT INTO hashtag SET title = 'видео';
 
 /* Запросы на добавление хештегов к постам */
-INSERT INTO PostHashtag (post_id, hashtag_id) VALUES ('1', '5');
-INSERT INTO PostHashtag (post_id, hashtag_id) VALUES ('2', '1');
-INSERT INTO PostHashtag (post_id, hashtag_id) VALUES ('2', '2');
-INSERT INTO PostHashtag (post_id, hashtag_id) VALUES ('3', '6');
-INSERT INTO PostHashtag (post_id, hashtag_id) VALUES ('3', '7');
-INSERT INTO PostHashtag (post_id, hashtag_id) VALUES ('4', '3');
-INSERT INTO PostHashtag (post_id, hashtag_id) VALUES ('5', '4');
+INSERT INTO posthashtag (post_id, hashtag_id) VALUES ('1', '5');
+INSERT INTO posthashtag (post_id, hashtag_id) VALUES ('2', '1');
+INSERT INTO posthashtag (post_id, hashtag_id) VALUES ('2', '2');
+INSERT INTO posthashtag (post_id, hashtag_id) VALUES ('3', '6');
+INSERT INTO posthashtag (post_id, hashtag_id) VALUES ('3', '7');
+INSERT INTO posthashtag (post_id, hashtag_id) VALUES ('4', '3');
+INSERT INTO posthashtag (post_id, hashtag_id) VALUES ('5', '4');
 
 /* Запрос на получение списка постов с сортировкой по популярности вместе с именами авторов и типом контента */
 SELECT p.id, p.title, p.content, p.author, p.shown_count, u.login, c.title, p.date_add

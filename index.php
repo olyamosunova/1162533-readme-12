@@ -50,12 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user_data = get_user_data($con, $values['login']);
 
         init_login($user_data, '/feed.php');
-//        $_SESSION['is_auth'] = 1;
-//        $_SESSION['user_name'] = $user_data['login'];
-//        $_SESSION['avatar'] = $user_data['avatar'];
-//        $_SESSION['id'] = $user_data['id'];
-//
-//        header("Location: /feed.php");
     }
 }
 

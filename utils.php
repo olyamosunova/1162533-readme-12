@@ -141,7 +141,7 @@ function save_image($file, $path) {
 };
 
 
-function save_post($con, $post, $post_type_id, $file_url = null, $user_id) {
+function save_post($con, $post, $post_type_id, $user_id, $file_url = null) {
     $data = [
         'id' => null,
         'date_add' => date('Y-m-d H:i:s'),
@@ -225,7 +225,7 @@ function save_tags($con, $hashtags, $post_id) {
                 $hashtag_id = mysqli_insert_id($con);
             }
 
-            $sql_add_post_hashtag = "INSERT INTO PostHashtag SET post_id = ?, hashtag_id = ?";
+            $sql_add_post_hashtag = "INSERT INTO posthashtag SET post_id = ?, hashtag_id = ?";
             $stmt_post_hashtags = db_get_prepare_stmt(
                 $con,
                 $sql_add_post_hashtag,

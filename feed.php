@@ -12,7 +12,7 @@ $con = get_db_connection();
 $title = 'Readme: моя лента';
 $content_types = get_post_content_types($con);
 $active_type_content_id = filter_input(INPUT_GET, 'ID') ?? 1;
-$posts = get_posts_for_me($con, $active_type_content_id, $_SESSION['id']);
+$posts = get_posts_for_me($con, $_SESSION['id'], $active_type_content_id);
 
 $page_content = include_template('feed.php', [
     'active_type_content_id' => $active_type_content_id,
