@@ -18,6 +18,7 @@ $is_subscription = $is_your_profile ? false : !empty(check_subscription($con, $u
 $error_post_comment = 0;
 $active_tab = !empty($_GET) && !empty($_GET['tab']) ? $_GET['tab'] : 'posts';
 $likes_list = get_likes_list($con, $user_id);
+$subscriptions_list = get_user_subscriptions($con ,$user_id);
 
 function post_hashtags($post_id) {
     global $con;
@@ -66,6 +67,12 @@ function check_show_comments($post_id) {
 function check_is_liked_post($post_id) {
     global $con;
     return !empty(check_like($con, $_SESSION['id'], $post_id)) ? 'icon-heart-active' : 'icon-heart';
+};
+
+function check_subs($user_id) {
+    global $con;
+
+    return !empty(check_subscription($con, $user_id, $_SESSION['id']));
 };
 
 $form_validations = [
@@ -117,7 +124,8 @@ $page_content = include_template('profile/profile.php', [
     'errors' => $errors,
     'error_post_comment' => $error_post_comment,
     'active_tab' => $active_tab,
-    'likes_list' => $likes_list
+    'likes_list' => $likes_list,
+    'subscriptions_list' => $subscriptions_list
 ]);
 
 $page = include_template('layout.php', [

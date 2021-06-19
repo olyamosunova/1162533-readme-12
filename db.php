@@ -463,7 +463,8 @@ user.id, user.login, user.avatar, post.content,
 FROM likes
 JOIN user ON user.id = likes.user_id
 JOIN post ON post.id = likes.post_id
-WHERE likes.post_id IN (SELECT post.id FROM post WHERE post.user_id = ?)";
+WHERE likes.post_id IN (SELECT post.id FROM post WHERE post.user_id = ?)
+ORDER BY likes.date_add DESC";
     $stmt = db_get_prepare_stmt(
         $con,
         $sql,
@@ -477,4 +478,26 @@ WHERE likes.post_id IN (SELECT post.id FROM post WHERE post.user_id = ?)";
     }
 
     return $likes;
+};
+
+function get_user_subscriptions($con, $user_id) {
+    $sql = "SELECT ss.*, u.id as user_id, u.date_add as user_date_add, u.avatar, u.login,
+(SELECT COUNT(post.id) FROM post WHERE post.user_id = ss.user_id) as post_count,
+(SELECT COUNT(subscription.id) FROM subscription WHERE subscription.user_id = ss.user_id) as subscription_count
+    FROM subscription ss
+    JOIN user u ON u.id = ss.user_id
+    WHERE ss.follower_id = ?";
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql,
+        [$user_id]);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $subscriptions = [];
+
+    if ($result) {
+        $subscriptions = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    }
+
+    return $subscriptions;
 };
