@@ -169,4 +169,10 @@ function validate_password($name) {
     return validation_result($_POST[$name]);
 };
 
+function validate_length($name, $length) {
+    if (strlen(trim($_POST[$name])) < $length) {
+        return validation_result(null, false, 'Длина комментария должна быть больше четырех символов');
+    }
 
+    return validation_result($_POST[$name]);
+};

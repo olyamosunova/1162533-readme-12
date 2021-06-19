@@ -126,12 +126,9 @@
                                 <footer class="post__footer">
                                     <div class="post__indicators">
                                         <div class="post__buttons">
-                                            <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">
+                                            <a href="likes.php?post_id=<?= $post['id'] ?>&user_id=<?= $actual_user_id ?>" class="post__indicator post__indicator--likes button" title="Лайк">
                                                 <svg class="post__indicator-icon" width="20" height="17">
-                                                    <use xlink:href="#icon-heart"></use>
-                                                </svg>
-                                                <svg class="post__indicator-icon post__indicator-icon--like-active" width="20" height="17">
-                                                    <use xlink:href="#icon-heart-active"></use>
+                                                    <use xlink:href="#<?= check_is_liked_post($post['id']) ?>"></use>
                                                 </svg>
                                                 <span><?= $post['likes_count'] ?></span>
                                                 <span class="visually-hidden">количество лайков</span>
@@ -168,7 +165,7 @@
                                     $comments = $comments_info['comments'];
                                     $is_show_comments = check_show_comments($post['id']);
                                 ?>
-                                <?php if(!$is_show_comments): ?>
+                                <?php if(!$is_show_comments AND $error_post_comment != $post['id']): ?>
                                     <div class="comments">
                                         <a
                                             class="comments__button button"
@@ -216,14 +213,29 @@
                                         </div>
                                     <?php endif; ?>
 
-                                    <form class="comments__form form" action="add-comment.php" method="post">
+                                    <form class="comments__form form" action="profile.php?user_id=<?= $user_id ?>" method="post">
+                                        <input type="hidden" name="add_comment" value="true" />
                                         <input type="hidden" name="user" value="<?= $actual_user_id ?>" />
                                         <input type="hidden" name="post" value="<?= $post['id'] ?>" />
                                         <div class="comments__my-avatar">
                                             <img class="comments__picture" src="<?= $actual_user_avatar ?>" alt="Аватар пользователя">
                                         </div>
-                                        <textarea name="message" class="comments__textarea form__textarea" placeholder="Ваш комментарий" required></textarea>
-                                        <label class="visually-hidden">Ваш комментарий</label>
+                                        <div class="form__input-section <?= isset($errors['message']) ? 'form__input-section--error' : '' ?>">
+                                            <textarea
+                                                name="message"
+                                                class="comments__textarea form__textarea form__input"
+                                                placeholder="Ваш комментарий"
+                                            ></textarea>
+                                            <label class="visually-hidden">Ваш комментарий</label>
+                                            <?php if(isset($errors) && isset($errors['message'])): ?>
+                                                <button class="form__error-button button" type="button">!</button>
+                                                <div class="form__error-text">
+                                                    <h3 class="form__error-title">Ошибка валидации</h3>
+                                                    <p class="form__error-desc"><?= $errors['message']['message'] ?></p>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+
                                         <button class="comments__submit button button--green" type="submit">Отправить</button>
                                     </form>
                                 <?php endif; ?>

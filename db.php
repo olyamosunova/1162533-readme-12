@@ -331,28 +331,32 @@ WHERE user_id = ?";
 };
 
 function send_comment($con, $values) {
-    $data = [
-        'message' => $values['message'],
-        'user_id' => $values['user'],
-        'post_id' => $values['post']
-    ];
+    $post = get_post($con, $values['post']);
 
-    $fields = [];
-    $data_for_query = [];
-    foreach ($data as $key => $item) {
-        $fields[] = "{$key} = ?";
-        $data_for_query[] = $item;
+    if(!empty($post)) {
+        $data = [
+            'message' => $values['message'],
+            'user_id' => $values['user'],
+            'post_id' => $values['post']
+        ];
+
+        $fields = [];
+        $data_for_query = [];
+        foreach ($data as $key => $item) {
+            $fields[] = "{$key} = ?";
+            $data_for_query[] = $item;
+        }
+
+        $fields_for_query = implode(', ', $fields);
+        $sql = "INSERT INTO comment SET {$fields_for_query}";
+        $stmt = db_get_prepare_stmt(
+            $con,
+            $sql,
+            $data_for_query);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_get_result($stmt);
+        return mysqli_insert_id($con);
     }
-
-    $fields_for_query = implode(', ', $fields);
-    $sql = "INSERT INTO comment SET {$fields_for_query}";
-    $stmt = db_get_prepare_stmt(
-        $con,
-        $sql,
-        $data_for_query);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_get_result($stmt);
-    return mysqli_insert_id($con);
 };
 
 function check_subscription($con, $user_id, $follower_id) {
@@ -409,5 +413,45 @@ function change_subscription($con, $values) {
         }
 
         return mysqli_stmt_errno($stmt_subscription);
+    }
+};
+
+function check_like($con, $user_id, $_post_id) {
+    $sql = "SELECT id FROM likes WHERE user_id = ? AND post_id = ?";
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql,
+        [$user_id, $_post_id]);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $like = [];
+
+    if ($result) {
+        $like = mysqli_fetch_assoc($result);
+    }
+
+    return $like;
+};
+
+function change_likes($con, $values) {
+    $post = get_post($con, $values['post_id']);
+
+    if(!empty($post)) {
+        $like = check_like($con, $values['user_id'], $values['post_id']);
+        $sql = "";
+
+        if (!empty($like)) {
+            $sql = "DELETE FROM likes WHERE user_id = ? AND post_id = ?";
+        } else {
+            $sql = "INSERT INTO likes SET user_id = ?, post_id = ?";
+        }
+
+        $stmt = db_get_prepare_stmt(
+            $con,
+            $sql,
+            [$values['user_id'], $values['post_id']]);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_get_result($stmt);
+        return mysqli_stmt_errno($stmt);
     }
 };
