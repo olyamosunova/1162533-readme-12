@@ -45,9 +45,8 @@ function get_post_content_types($con) {
  * @param number $active_type_content_id
  * @return array
  */
-function get_popular_posts($con, $active_type_content_id, $limit, $offset) {
+function get_popular_posts($con, $active_type_content_id, $sort_type, $sort_direction, $limit, $offset) {
     $active_type_content_id = $active_type_content_id ? $active_type_content_id : 1;
-
     $sql_post_popular = "
 SELECT
     p.id,
@@ -69,8 +68,21 @@ WHERE
 ? > 1 AND p.content_type_id = ?
 OR
 ? = 1 AND p.content_type_id >= ?
-ORDER BY p.shown_count DESC
-LIMIT ? OFFSET ?;";
+ORDER BY ";
+
+    switch ($sort_type) {
+        case 'popular':
+            $sql_post_popular .= " p.shown_count $sort_direction LIMIT ? OFFSET ?";
+            break;
+
+        case 'like':
+            $sql_post_popular .= " likes_count $sort_direction LIMIT ? OFFSET ?";
+            break;
+
+        case 'date':
+            $sql_post_popular .= " p.date_add $sort_direction LIMIT ? OFFSET ?";
+            break;
+    }
 
     $popular_posts = [];
     $stmt = db_get_prepare_stmt(

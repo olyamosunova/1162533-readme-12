@@ -8,7 +8,8 @@
                 <b class="popular__sorting-caption sorting__caption">Сортировка:</b>
                 <ul class="popular__sorting-list sorting__list">
                     <li class="sorting__item sorting__item--popular">
-                        <a class="sorting__link sorting__link--active" href="#">
+                        <a class="sorting__link <?= $sort_type == 'popular' ? 'sorting__link--active' : '' ?> <?= $sort_direction == 'ASC' ? 'sorting__link--reverse' : '' ?>"
+                           href="<?= get_sort_link('popular') ?>">
                             <span>Популярность</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -16,7 +17,8 @@
                         </a>
                     </li>
                     <li class="sorting__item">
-                        <a class="sorting__link" href="#">
+                        <a class="sorting__link <?= $sort_type == 'like' ? 'sorting__link--active' : '' ?> <?= $sort_direction == 'ASC' ? 'sorting__link--reverse' : '' ?>"
+                           href="<?= get_sort_link('like') ?>">
                             <span>Лайки</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -24,7 +26,8 @@
                         </a>
                     </li>
                     <li class="sorting__item">
-                        <a class="sorting__link" href="#">
+                        <a class="sorting__link <?= $sort_type == 'date' ? 'sorting__link--active' : '' ?> <?= $sort_direction == 'ASC' ? 'sorting__link--reverse' : '' ?>"
+                           href="<?= get_sort_link('date') ?>">
                             <span>Дата</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -46,7 +49,7 @@
                                 <?= $active_type_content_id == $type['id'] ||
                                 (!$active_type_content_id && $type['title'] == 'all')? 'filters__button--active' : '' ?>
                                 button"
-                                href="<?= get_link_content_type($type['id']) ?>">
+                                href="<?= get_link_content_type($type['id']) ?>&sort_type=<?= $sort_type ?>&sort_direction=<?= $sort_direction ?>">
 
                                 <?php if ($type['title'] !== 'all'): ?>
                                     <span class="visually-hidden"><?= $type['label'] ?></span>
@@ -157,11 +160,11 @@
         <?php if($popular_posts_count > $limit): ?>
             <div class="popular__page-links">
                 <a class="popular__page-link popular__page-link--prev button button--gray"
-                   href="popular.php?page=<?= $page > 1 ? $page - 1 : 1 ?>"
+                   href="popular.php?page=<?= $page > 1 ? $page - 1 : 1 ?>&sort_type=<?= $sort_type ?>&sort_direction=<?= $sort_direction ?>"
                     <?= $page < 1 ? 'disabled' : '' ?>
                 >Предыдущая страница</a>
                 <a class="popular__page-link popular__page-link--next button button--gray"
-                   href="popular.php?page=<?= ($popular_posts_count / $limit) > $page ? $page + 1 : $page ?>"
+                   href="popular.php?page=<?= ($popular_posts_count / $limit) > $page ? $page + 1 : $page ?>&sort_type=<?= $sort_type ?>&sort_direction=<?= $sort_direction ?>"
                     <?= ($popular_posts_count / $limit) < $page ? 'disabled' : '' ?>
                 >Следующая страница</a>
             </div>
