@@ -11,7 +11,6 @@ $title = 'readme: пост';
 $user_name = $_SESSION['user_name'];
 $post_id = filter_input(INPUT_GET, 'ID');
 
-// Проверяет наличие параметра запроса;
 if (!$post_id) {
     not_found_page($user_name);
 }

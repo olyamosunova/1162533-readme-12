@@ -139,13 +139,9 @@ function get_post_hashtags($con, $post_id) {
 function get_info_about_post_author($con, $author_id) {
     $sql_author_info = "
 SELECT
-    u.id,
-    u.user_name,
-    u.avatar,
-    u.date_add,
-    u.login,
-    (SELECT COUNT(1) FROM subscription WHERE subscription.user_id = u.id) AS count_followers,
-    (SELECT COUNT(1) FROM post WHERE post.user_id = u.id) AS count_posts
+   *,
+    (SELECT COUNT(subscription.id) FROM subscription WHERE subscription.user_id = u.id) AS count_followers,
+    (SELECT COUNT(post.id) FROM post WHERE post.user_id = u.id) AS count_posts
 FROM user u
 WHERE u.id = ?
 GROUP BY u.id";
@@ -158,10 +154,10 @@ GROUP BY u.id";
     $author = null;
 
     if ($result_author_info) {
-        $author = mysqli_fetch_all($result_author_info, MYSQLI_ASSOC);
+        $author = mysqli_fetch_assoc($result_author_info);
     }
 
-    return $author[0];
+    return $author;
 };
 
 function get_comments_for_post($con, $post_id) {
@@ -170,11 +166,14 @@ SELECT
     c.id,
     c.date_add,
     c.message,
+    c.user_id,
+    u.login AS author_login,
     u.user_name AS author_name,
     u.avatar AS author_avatar
 FROM comment c
 JOIN user u ON c.user_id = u.id
-WHERE c.post_id = ?";
+WHERE c.post_id = ?
+ORDER BY c.date_add ASC";
     $stmt = db_get_prepare_stmt(
         $con,
         $sql_comments,
@@ -308,4 +307,107 @@ ORDER BY p.date_add DESC";
     }
 
     return $posts;
+};
+
+function get_user_posts($con, $user_id) {
+    $sql = "SELECT post.*, content_type.class_name AS content_type_title,
+(SELECT COUNT(likes.id) FROM likes WHERE likes.post_id = post.id) AS likes_count
+FROM post
+JOIN content_type ON content_type.id = post.content_type_id
+WHERE user_id = ?";
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql,
+        [$user_id]);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $posts = [];
+
+    if ($result) {
+        $posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    }
+
+    return $posts;
+};
+
+function send_comment($con, $values) {
+    $data = [
+        'message' => $values['message'],
+        'user_id' => $values['user'],
+        'post_id' => $values['post']
+    ];
+
+    $fields = [];
+    $data_for_query = [];
+    foreach ($data as $key => $item) {
+        $fields[] = "{$key} = ?";
+        $data_for_query[] = $item;
+    }
+
+    $fields_for_query = implode(', ', $fields);
+    $sql = "INSERT INTO comment SET {$fields_for_query}";
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql,
+        $data_for_query);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_get_result($stmt);
+    return mysqli_insert_id($con);
+};
+
+function check_subscription($con, $user_id, $follower_id) {
+    $sql = "SELECT id FROM subscription WHERE user_id = ? AND follower_id = ?";
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql,
+        [$user_id, $follower_id]);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $is_subscription = [];
+
+    if ($result) {
+        $is_subscription = mysqli_fetch_assoc($result);
+    }
+
+    return $is_subscription;
+};
+
+function change_subscription($con, $values) {
+    $sql_user = "SELECT id FROM user WHERE id = ?";
+    $stmt_user = db_get_prepare_stmt(
+        $con,
+        $sql_user,
+        [$values['user_id']]);
+    mysqli_stmt_execute($stmt_user);
+    $result_user = mysqli_stmt_get_result($stmt_user);
+    $user_info = mysqli_fetch_assoc($result_user);
+
+    if (!empty($user_info)) {
+        $sql_subscription = "";
+        switch ($values['action']) {
+            case 'remove':
+                $sql_subscription = "DELETE FROM subscription WHERE user_id = ? && follower_id = ?";
+                break;
+
+            case 'add':
+                $sql_subscription = "INSERT INTO subscription SET user_id = ?, follower_id = ?";
+                break;
+        }
+
+        $stmt_subscription = db_get_prepare_stmt(
+            $con,
+            $sql_subscription,
+            [$values['user_id'], $values['follower_id']]);
+        mysqli_stmt_execute($stmt_subscription);
+        $result_subscription = mysqli_stmt_get_result($stmt_subscription);
+
+        if ($result_user && $result_subscription) {
+            mysqli_query($con, "COMMIT");
+        }
+        else {
+            mysqli_query($con, "ROLLBACK");
+        }
+
+        return mysqli_stmt_errno($stmt_subscription);
+    }
 };

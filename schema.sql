@@ -33,6 +33,7 @@ CREATE TABLE comment (
 
 CREATE TABLE likes (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    date_add TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user_id INT(11),
     post_id INT(11)
 );

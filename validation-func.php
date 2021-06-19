@@ -104,6 +104,27 @@ function validate_url($name) {
     return validation_result($_POST[$name]);
 };
 
+function validate_youtube($name) {
+    $url = $_POST[$name];
+    $id = extract_youtube_id($url);
+
+    set_error_handler(function () {}, E_WARNING);
+    $headers = get_headers('https://www.youtube.com/oembed?format=json&url=http://www.youtube.com/watch?v=' . $id);
+    restore_error_handler();
+
+    if (!is_array($headers)) {
+        return validation_result(null, false, 'Видео по такой ссылке не найдено. Проверьте ссылку на видео');
+    }
+
+    $err_flag = strpos($headers[0], '200') ? 200 : 404;
+
+    if ($err_flag !== 200) {
+        return validation_result(null, false, 'Видео по такой ссылке не найдено. Проверьте ссылку на видео');
+    }
+
+    return validation_result($_POST[$name]);
+};
+
 function validate_photo($name) {
     if ($_FILES[$name] && $_FILES[$name]['error'] !== 4) {
         $file_type = $_FILES[$name]['type'];

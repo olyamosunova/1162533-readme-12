@@ -79,7 +79,7 @@
                                 <div class="header__profile-tooltip">
                                     <ul class="header__profile-nav">
                                         <li class="header__profile-nav-item">
-                                            <a class="header__profile-nav-link" href="#">
+                                            <a class="header__profile-nav-link" href="profile.php">
                           <span class="header__profile-nav-text">
                             Мой профиль
                           </span>
@@ -133,6 +133,6 @@
 
 <!--<script src="libs/dropzone.js"></script>-->
 <!--<script src="js/dropzone-settings.js"></script>-->
-<script src="js/main.js"></script>
+<!--<script src="js/main.js"></script>-->
 </body>
 </html>

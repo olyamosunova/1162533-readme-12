@@ -74,11 +74,7 @@ $form_validations = [
                 return validate_url($name);
             },
             2 => function($name) {
-                if ($_POST[$name] && is_string(check_youtube_url($_POST[$name]))) {
-                    return check_youtube_url($_POST[$name]);
-                } else {
-                    return false;
-                }
+                return validate_youtube($name);
             }
         ],
         'post-tags' => [
