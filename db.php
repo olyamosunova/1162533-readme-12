@@ -208,7 +208,6 @@ function get_user_data($con, $user_email) {
 };
 
 function get_posts_for_me($con, $user_id, $active_type_content_id = 1) {
-
     $sql_posts = "
 SELECT
     p.id,
@@ -228,15 +227,12 @@ JOIN user u ON p.user_id = u.id
 JOIN content_type c ON p.content_type_id =  c.id
 JOIN subscription ON p.user_id = subscription.user_id
 WHERE
-? > 1 AND p.content_type_id = ?
+(? > 1 AND p.content_type_id = ?
 OR
-? = 1 AND p.content_type_id >= ?
+? = 1 AND p.content_type_id >= ?)
 AND
 subscription.follower_id = ?
 ORDER BY p.date_add DESC;";
-
-//    print_r($active_type_content_id);
-
     $posts = [];
     $stmt = db_get_prepare_stmt(
         $con,
