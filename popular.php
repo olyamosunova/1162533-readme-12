@@ -11,7 +11,7 @@ $con = get_db_connection();
 $page_name = 'popular';
 $title = 'readme: популярное';
 $content_types = get_post_content_types($con);
-$active_type_content_id = filter_input(INPUT_GET, 'ID');
+$active_type_content_id = filter_input(INPUT_GET, 'content_id');
 $popular_posts = get_popular_posts($con, $active_type_content_id);
 
 $page_content = include_template('main.php', [

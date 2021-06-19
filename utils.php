@@ -323,7 +323,7 @@ function cut_text($text, $count_symbols = 300) {
 
 function get_link_content_type($id) {
     $scriptname = $_SERVER['SCRIPT_NAME'];
-    $url = $scriptname . "?ID=" . $id;
+    $url = $scriptname . "?content_id=" . $id;
 
     return $url;
 };
