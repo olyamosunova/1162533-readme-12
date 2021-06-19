@@ -455,3 +455,26 @@ function change_likes($con, $values) {
         return mysqli_stmt_errno($stmt);
     }
 };
+
+function get_likes_list($con, $user_id) {
+    $sql = "SELECT likes.*,
+user.id, user.login, user.avatar, post.content,
+(SELECT title FROM content_type WHERE content_type.id = post.content_type_id) as content_type
+FROM likes
+JOIN user ON user.id = likes.user_id
+JOIN post ON post.id = likes.post_id
+WHERE likes.post_id IN (SELECT post.id FROM post WHERE post.user_id = ?)";
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql,
+        [$user_id]);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $likes = [];
+
+    if ($result) {
+        $likes = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    }
+
+    return $likes;
+};

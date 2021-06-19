@@ -16,6 +16,8 @@ $user_posts = get_user_posts($con, $user_id);
 $is_your_profile = $user_id == $_SESSION['id'];
 $is_subscription = $is_your_profile ? false : !empty(check_subscription($con, $user_id, $_SESSION['id']));
 $error_post_comment = 0;
+$active_tab = !empty($_GET) && !empty($_GET['tab']) ? $_GET['tab'] : 'posts';
+$likes_list = get_likes_list($con, $user_id);
 
 function post_hashtags($post_id) {
     global $con;
@@ -97,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($errors)) {
             send_comment($con, $_POST);
 
-            header("Location: /profile.php?user_id=$user_id&post_id=$post_id&show_comments&all_comments");
+            header("Location: /profile.php?user_id=$user_id&post_id=$post_id&show_comments&all_comments&tab=posts");
         } else {
             $error_post_comment = $post_id;
         }
@@ -113,7 +115,9 @@ $page_content = include_template('profile/profile.php', [
     'is_your_profile' => $is_your_profile,
     'is_subscription' => $is_subscription,
     'errors' => $errors,
-    'error_post_comment' => $error_post_comment
+    'error_post_comment' => $error_post_comment,
+    'active_tab' => $active_tab,
+    'likes_list' => $likes_list
 ]);
 
 $page = include_template('layout.php', [

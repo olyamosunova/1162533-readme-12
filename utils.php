@@ -335,3 +335,10 @@ function get_url_post($id) {
 function get_domain($url) {
     return parse_url($url)['host'] ?? $url;
 };
+
+function get_youtube_video_miniature($youtube_url) {
+    $id = extract_youtube_id($youtube_url);
+    $src = 'http://img.youtube.com/vi/'.$id.'/0.jpg';
+
+    return $src;
+};
