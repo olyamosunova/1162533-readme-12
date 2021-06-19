@@ -152,8 +152,19 @@
                         </div>
                     </footer>
                 </article>
-
             <?php endforeach; ?>
         </div>
+        <?php if($popular_posts_count > $limit): ?>
+            <div class="popular__page-links">
+                <a class="popular__page-link popular__page-link--prev button button--gray"
+                   href="popular.php?page=<?= $page > 1 ? $page - 1 : 1 ?>"
+                    <?= $page < 1 ? 'disabled' : '' ?>
+                >Предыдущая страница</a>
+                <a class="popular__page-link popular__page-link--next button button--gray"
+                   href="popular.php?page=<?= ($popular_posts_count / $limit) > $page ? $page + 1 : $page ?>"
+                    <?= ($popular_posts_count / $limit) < $page ? 'disabled' : '' ?>
+                >Следующая страница</a>
+            </div>
+        <?php endif; ?>
     </div>
 </section>

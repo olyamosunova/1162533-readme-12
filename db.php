@@ -45,7 +45,7 @@ function get_post_content_types($con) {
  * @param number $active_type_content_id
  * @return array
  */
-function get_popular_posts($con, $active_type_content_id) {
+function get_popular_posts($con, $active_type_content_id, $limit, $offset) {
     $active_type_content_id = $active_type_content_id ? $active_type_content_id : 1;
 
     $sql_post_popular = "
@@ -70,13 +70,18 @@ WHERE
 OR
 ? = 1 AND p.content_type_id >= ?
 ORDER BY p.shown_count DESC
-LIMIT 6;";
+LIMIT ? OFFSET ?;";
 
     $popular_posts = [];
     $stmt = db_get_prepare_stmt(
         $con,
         $sql_post_popular,
-        [$active_type_content_id, $active_type_content_id, $active_type_content_id, $active_type_content_id]);
+        [$active_type_content_id,
+            $active_type_content_id,
+            $active_type_content_id,
+            $active_type_content_id,
+            $limit,
+            $offset]);
     mysqli_stmt_execute($stmt);
     $result_popular_post = mysqli_stmt_get_result($stmt);
 
@@ -85,6 +90,31 @@ LIMIT 6;";
     }
 
     return $popular_posts;
+};
+
+function get_popular_posts_count($con, $active_type_content_id) {
+    $active_type_content_id = $active_type_content_id ? $active_type_content_id : 1;
+
+    $sql_post_popular = "
+SELECT COUNT(p.id) as count FROM post p
+WHERE
+? > 1 AND p.content_type_id = ?
+OR
+? = 1 AND p.content_type_id >= ?";
+
+    $count = 0;
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql_post_popular,
+        [$active_type_content_id, $active_type_content_id, $active_type_content_id, $active_type_content_id]);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($result) {
+        $count = mysqli_fetch_assoc($result);
+    }
+
+    return $count;
 };
 
 function get_post($con, $post_id) {
