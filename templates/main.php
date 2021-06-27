@@ -9,7 +9,7 @@
                 <ul class="popular__sorting-list sorting__list">
                     <li class="sorting__item sorting__item--popular">
                         <a class="sorting__link <?= $sort_type == 'popular' ? 'sorting__link--active' : '' ?> <?= $sort_direction == 'ASC' ? 'sorting__link--reverse' : '' ?>"
-                           href="<?= get_sort_link('popular') ?>">
+                           href="<?= $get_sort_link('popular') ?>">
                             <span>Популярность</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -18,7 +18,7 @@
                     </li>
                     <li class="sorting__item">
                         <a class="sorting__link <?= $sort_type == 'like' ? 'sorting__link--active' : '' ?> <?= $sort_direction == 'ASC' ? 'sorting__link--reverse' : '' ?>"
-                           href="<?= get_sort_link('like') ?>">
+                           href="<?= $get_sort_link('like') ?>">
                             <span>Лайки</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -27,7 +27,7 @@
                     </li>
                     <li class="sorting__item">
                         <a class="sorting__link <?= $sort_type == 'date' ? 'sorting__link--active' : '' ?> <?= $sort_direction == 'ASC' ? 'sorting__link--reverse' : '' ?>"
-                           href="<?= get_sort_link('date') ?>">
+                           href="<?= $get_sort_link('date') ?>">
                             <span>Дата</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -49,7 +49,11 @@
                                 <?= $active_type_content_id == $type['id'] ||
                                 (!$active_type_content_id && $type['title'] == 'all')? 'filters__button--active' : '' ?>
                                 button"
-                                href="<?= get_link_content_type($type['id']) ?>&sort_type=<?= $sort_type ?>&sort_direction=<?= $sort_direction ?>">
+                                href="<?= $to('popular', [
+                                    'content_id' => $type['id'],
+                                    'sort_type' => $sort_type,
+                                    'sort_direction' => $sort_direction
+                                ]) ?>">
 
                                 <?php if ($type['title'] !== 'all'): ?>
                                     <span class="visually-hidden"><?= $type['label'] ?></span>
@@ -70,7 +74,7 @@
                 <article class="popular__post post <?= $post['type'] ?>">
                     <header class="post__header">
                         <h2>
-                            <a href="<?= get_url_post($post['id']) ?>"><?= htmlspecialchars($post['title']) ?></a>
+                            <a href="<?= $to('post', ['ID' => $post['id']]) ?>"><?= htmlspecialchars($post['title']) ?></a>
                         </h2>
                     </header>
                     <div class="post__main">
@@ -83,7 +87,7 @@
                             </blockquote>
                         <?php elseif ($post['type'] == 'post-link'): ?>
                             <div class="post-link__wrapper">
-                                <a class="post-link__external" href="https://<?= htmlspecialchars($post['content']) ?>" title="Перейти по ссылке">
+                                <a class="post-link__external" href="<?= htmlspecialchars($post['content']) ?>" title="Перейти по ссылке">
                                     <div class="post-link__info-wrapper">
                                         <div class="post-link__icon-wrapper">
                                             <img src="https://www.google.com/s2/favicons?domain=vitadental.ru" alt="Иконка">
@@ -119,7 +123,9 @@
                     </div>
                     <footer class="post__footer">
                         <div class="post__author">
-                            <a class="post__author-link" href="#" title="Автор">
+                            <a class="post__author-link"
+                               href="<?= $to('profile', ['user_id' => $post['user_id']]) ?>"
+                               title="Автор">
                                 <div class="post__avatar-wrapper">
                                     <img class="post__author-avatar" src="<?= $post['avatar'] ?>" alt="Аватар пользователя">
                                 </div>
@@ -134,17 +140,21 @@
                         </div>
                         <div class="post__indicators">
                             <div class="post__buttons">
-                                <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">
+                                <a class="post__indicator post__indicator--likes button"
+                                   href="<?= $to('likes', [
+                                       'post_id' => $post['id'],
+                                       'user_id' => $actual_user_id
+                                   ]) ?>"
+                                   title="Лайк">
                                     <svg class="post__indicator-icon" width="20" height="17">
-                                        <use xlink:href="#icon-heart"></use>
-                                    </svg>
-                                    <svg class="post__indicator-icon post__indicator-icon--like-active" width="20" height="17">
-                                        <use xlink:href="#icon-heart-active"></use>
+                                        <use xlink:href="#<?= $check_is_liked_post($post['id']) ?>"></use>
                                     </svg>
                                     <span><?= $post['likes_count'] ?></span>
                                     <span class="visually-hidden">количество лайков</span>
                                 </a>
-                                <a class="post__indicator post__indicator--comments button" href="#" title="Комментарии">
+                                <a class="post__indicator post__indicator--comments button"
+                                   href="<?= $to('post', ['ID' => $post['id']]) ?>"
+                                   title="Комментарии">
                                     <svg class="post__indicator-icon" width="19" height="17">
                                         <use xlink:href="#icon-comment"></use>
                                     </svg>
@@ -159,14 +169,31 @@
         </div>
         <?php if($popular_posts_count > $limit): ?>
             <div class="popular__page-links">
-                <a class="popular__page-link popular__page-link--prev button button--gray"
-                   href="popular.php?page=<?= $page > 1 ? $page - 1 : 1 ?>&sort_type=<?= $sort_type ?>&sort_direction=<?= $sort_direction ?>"
-                    <?= $page < 1 ? 'disabled' : '' ?>
-                >Предыдущая страница</a>
-                <a class="popular__page-link popular__page-link--next button button--gray"
-                   href="popular.php?page=<?= ($popular_posts_count / $limit) > $page ? $page + 1 : $page ?>&sort_type=<?= $sort_type ?>&sort_direction=<?= $sort_direction ?>"
-                    <?= ($popular_posts_count / $limit) < $page ? 'disabled' : '' ?>
-                >Следующая страница</a>
+                <?php if($page > 1): ?>
+                    <a class="popular__page-link popular__page-link--prev button button--gray"
+                       href="<?= $to('popular', [
+                           'content_id' => $active_type_content_id,
+                           'page' => $page > 1 ? $page - 1 : 1,
+                           'sort_type' => $sort_type,
+                           'sort_direction' => $sort_direction
+                       ]) ?>"
+                    >Предыдущая страница</a>
+                <?php else: ?>
+                    <span class="popular__page-link popular__page-link--prev button button--gray">Предыдущая страница</span>
+                <?php endif; ?>
+
+                <?php if(($popular_posts_count / $limit) > $page): ?>
+                    <a class="popular__page-link popular__page-link--next button button--gray"
+                       href="<?= $to('popular', [
+                           'content_id' => $active_type_content_id,
+                           'page' => ($popular_posts_count / $limit) > $page ? $page + 1 : $page,
+                           'sort_type' => $sort_type,
+                           'sort_direction' => $sort_direction
+                       ]) ?>"
+                    >Следующая страница</a>
+                <?php else: ?>
+                    <span class="popular__page-link popular__page-link--next button button--gray">Следующая страница</span>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
     </div>

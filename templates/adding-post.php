@@ -12,7 +12,7 @@
                                 <a class="adding-post__tabs-link filters__button
                                     filters__button--<?= $key ?>
                                     <?= $active_tab === $key ? 'filters__button--active tabs__item tabs__item--active' : '' ?> button"
-                                   href="<?= get_tabs_link($key) ?>">
+                                   href="<?= $get_tabs_link($key) ?>">
                                     <svg class="filters__icon" width="22" height="18">
                                         <use xlink:href="#icon-filter-<?= $key ?>"></use>
                                     </svg>

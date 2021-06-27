@@ -33,11 +33,19 @@
                 <div class="profile__user-buttons user__buttons">
                     <?php if(!$is_your_profile): ?>
                         <?php if($is_subscription): ?>
-                            <a href="subscription.php?user_id=<?= $user_id ?>&follower_id=<?= $actual_user_id ?>&action=remove"
+                            <a href="<?= $to('subscription', [
+                                'user_id' => $user_id,
+                                'follower_id' => $actual_user_id,
+                                'action' => 'remove'
+                            ]) ?>"
                                class="profile__user-button user__button user__button--subscription button button--quartz">Отписаться</a>
                             <a class="profile__user-button user__button user__button--writing button button--green" href="messages.html">Сообщение</a>
                         <?php else: ?>
-                            <a href="subscription.php?user_id=<?= $user_id ?>&follower_id=<?= $actual_user_id ?>&action=add"
+                            <a href="<?= $to('subscription', [
+                                'user_id' => $user_id,
+                                'follower_id' => $actual_user_id,
+                                'action' => 'add'
+                            ]) ?>"
                                class="profile__user-button user__button user__button--subscription button button--main">Подписаться</a>
                         <?php endif; ?>
                     <?php endif; ?>
@@ -50,15 +58,24 @@
                     <b class="profile__tabs-caption filters__caption">Показать:</b>
                     <ul class="profile__tabs-list filters__list tabs__list">
                         <li class="profile__tabs-item filters__item">
-                            <a href="profile.php?user_id=<?= $user_id ?>&tab=posts"
+                            <a href="<?= $to('profile', [
+                                'user_id' => $user_id,
+                                'tab' => 'posts'
+                            ]) ?>"
                                class="profile__tabs-link filters__button tabs__item <?= $active_tab == 'posts' ? 'filters__button--active tabs__item--active' : '' ?> button">Посты</a>
                         </li>
                         <li class="profile__tabs-item filters__item">
-                            <a href="profile.php?user_id=<?= $user_id ?>&tab=likes"
+                            <a href="<?= $to('profile', [
+                                'user_id' => $user_id,
+                                'tab' => 'likes'
+                            ]) ?>"
                                 class="profile__tabs-link filters__button tabs__item <?= $active_tab == 'likes' ? 'filters__button--active tabs__item--active' : '' ?> button">Лайки</a>
                         </li>
                         <li class="profile__tabs-item filters__item">
-                            <a href="profile.php?user_id=<?= $user_id ?>&tab=subscriptions"
+                            <a href="<?= $to('profile', [
+                                'user_id' => $user_id,
+                                'tab' => 'subscriptions'
+                            ]) ?>"
                                class="profile__tabs-link filters__button tabs__item <?= $active_tab == 'subscriptions' ? 'filters__button--active tabs__item--active' : '' ?> button">Подписки</a>
                         </li>
                     </ul>
@@ -73,7 +90,7 @@
                                 <?php foreach ($user_posts as $post): ?>
                                     <article class="profile__post post <?= $post['content_type_title'] ?>">
                                         <header class="post__header">
-                                            <h2><a href="<?= get_url_post($post['id']) ?>"><?= $post['title'] ?></a></h2>
+                                            <h2><a href="<?= $to('post', ['ID' => $post['id']]) ?>"><?= $post['title'] ?></a></h2>
                                         </header>
                                         <div class="post__main">
                                             <?php if($post['content_type_title'] === 'post-photo'): ?>
@@ -132,9 +149,12 @@
                                         <footer class="post__footer">
                                             <div class="post__indicators">
                                                 <div class="post__buttons">
-                                                    <a href="likes.php?post_id=<?= $post['id'] ?>&user_id=<?= $actual_user_id ?>" class="post__indicator post__indicator--likes button" title="Лайк">
+                                                    <a href="<?= $to('likes', [
+                                                        'post_id' => $post['id'],
+                                                        'user_id' => $actual_user_id
+                                                    ]) ?>" class="post__indicator post__indicator--likes button" title="Лайк">
                                                         <svg class="post__indicator-icon" width="20" height="17">
-                                                            <use xlink:href="#<?= check_is_liked_post($post['id']) ?>"></use>
+                                                            <use xlink:href="#<?= $check_is_liked_post($post['id']) ?>"></use>
                                                         </svg>
                                                         <span><?= $post['likes_count'] ?></span>
                                                         <span class="visually-hidden">количество лайков</span>
@@ -153,29 +173,34 @@
                                                 ><?= format_publication_date($post['date_add']) ?></time>
                                             </div>
                                             <?php
-                                            $hashtags = post_hashtags($post['id']);
+                                            $hashtags = $post_hashtags($post['id']);
                                             ?>
                                             <?php if (!empty($hashtags)): ?>
                                                 <ul class="post__tags">
                                                     <?php foreach ($hashtags as $hashtag): ?>
                                                         <li>
-                                                            <a href="/search.php?search=%23<?= $hashtag['title'] ?>">#<?= $hashtag['title'] ?></a>
+                                                            <a href="<?= $to('search', ['search' => '%23' . $hashtag['title']]) ?>">#<?= $hashtag['title'] ?></a>
                                                         </li>
                                                     <?php endforeach; ?>
                                                 </ul>
                                             <?php endif; ?>
                                         </footer>
                                         <?php
-                                        $comments_info = post_comments($post['id']);
+                                        $comments_info = $post_comments($post['id']);
                                         $comments_count = $comments_info['length'];
                                         $comments = $comments_info['comments'];
-                                        $is_show_comments = check_show_comments($post['id']);
+                                        $is_show_comments = $check_show_comments($post['id']);
                                         ?>
                                         <?php if(!$is_show_comments AND $error_post_comment != $post['id']): ?>
                                             <div class="comments">
                                                 <a
                                                     class="comments__button button"
-                                                    href="profile.php?user_id=<?= $user_id ?>&post_id=<?= $post['id'] ?>&show_comments&tab=<?= $active_tab ?>"
+                                                    href="<?= $to('profile', [
+                                                        'user_id' => $user_id,
+                                                        'post_id' => $post['id'],
+                                                        'show_comments' => '',
+                                                        'tab' => $active_tab
+                                                    ]) ?>"
                                                 >Показать комментарии</a>
                                             </div>
                                         <?php else: ?>
@@ -186,13 +211,15 @@
                                                             <?php foreach ($comments as $comment): ?>
                                                                 <li class="comments__item user">
                                                                     <div class="comments__avatar">
-                                                                        <a class="user__avatar-link" href="profile.php?user_id=<?= $comment['user_id'] ?>">
+                                                                        <a class="user__avatar-link"
+                                                                           href="<?= $to('profile', ['user_id' => $comment['user_id']]) ?>">
                                                                             <img class="comments__picture" src="<?= $comment['author_avatar'] ?>" alt="Аватар пользователя">
                                                                         </a>
                                                                     </div>
                                                                     <div class="comments__info">
                                                                         <div class="comments__name-wrapper">
-                                                                            <a class="comments__user-name" href="profile.php?user_id=<?= $comment['user_id'] ?>">
+                                                                            <a class="comments__user-name"
+                                                                               href="<?= $to('profile', ['user_id' => $comment['user_id']]) ?>">
                                                                                 <span><?= $comment['author_name'] ?? $comment['author_login'] ?></span>
                                                                             </a>
                                                                             <time
@@ -211,7 +238,13 @@
                                                         <?php if($comments_count > 2 && count($comments) <= 2): ?>
                                                             <a
                                                                 class="comments__more-link"
-                                                                href="profile.php?user_id=<?= $user_id ?>&post_id=<?= $post['id'] ?>&show_comments&all_comments&tab=<?= $active_tab ?>">
+                                                                href="<?= $to('profile', [
+                                                                    'user_id' => $user_id,
+                                                                    'post_id' => $post['id'],
+                                                                    'show_comments' => '',
+                                                                    'all_comments' => '',
+                                                                    'tab' => $active_tab
+                                                                ]) ?>">
                                                                 <span>Показать все комментарии</span>
                                                                 <sup class="comments__amount"><?= $comments_count - 2 ?></sup>
                                                             </a>
@@ -261,12 +294,14 @@
                                         <li class="post-mini post-mini--<?= $like['content_type'] ?> post user">
                                             <div class="post-mini__user-info user__info">
                                                 <div class="post-mini__avatar user__avatar">
-                                                    <a class="user__avatar-link" href="#">
+                                                    <a class="user__avatar-link"
+                                                        href="<?= $to('profile', ['user_id' => $like['user_id']]) ?>">
                                                         <img class="post-mini__picture user__picture" src="<?= $like['avatar'] ?>" alt="Аватар пользователя">
                                                     </a>
                                                 </div>
                                                 <div class="post-mini__name-wrapper user__name-wrapper">
-                                                    <a class="post-mini__name user__name" href="profile.php?user_id=<?= $like['user_id'] ?>">
+                                                    <a class="post-mini__name user__name"
+                                                       href="<?= $to('profile', ['user_id' => $like['user_id']]) ?>">
                                                         <span><?= $like['login'] ?></span>
                                                     </a>
                                                     <div class="post-mini__action">
@@ -278,7 +313,9 @@
                                                 </div>
                                             </div>
                                             <div class="post-mini__preview">
-                                                <a class="post-mini__link" href="post.php?ID=<?= $like['post_id'] ?>" title="Перейти на публикацию">
+                                                <a class="post-mini__link"
+                                                   href="<?= $to('post', ['ID' => $like['post_id']]) ?>"
+                                                   title="Перейти на публикацию">
                                                     <?php if($like['content_type'] == 'photo'): ?>
                                                         <div class="post-mini__image-wrapper">
                                                             <img class="post-mini__image" src="<?= $like['content'] ?>" width="109" height="109" alt="Превью публикации">
@@ -329,12 +366,14 @@
                                         <li class="post-mini post-mini--photo post user">
                                             <div class="post-mini__user-info user__info">
                                                 <div class="post-mini__avatar user__avatar">
-                                                    <a class="user__avatar-link" href="profile.php?user_id=<?= $subscription['user_id'] ?>">
+                                                    <a class="user__avatar-link"
+                                                       href="<?= $to('profile', ['user_id' => $subscription['user_id']]) ?>">
                                                         <img class="post-mini__picture user__picture" src="<?= $subscription['avatar'] ?>" alt="Аватар пользователя">
                                                     </a>
                                                 </div>
                                                 <div class="post-mini__name-wrapper user__name-wrapper">
-                                                    <a class="post-mini__name user__name" href="profile.php?user_id=<?= $subscription['user_id'] ?>">
+                                                    <a class="post-mini__name user__name"
+                                                       href="<?= $to('profile', ['user_id' => $subscription['user_id']]) ?>">
                                                         <span><?= $subscription['login'] ?></span>
                                                     </a>
                                                     <time
@@ -359,14 +398,24 @@
                                             </div>
                                             <div class="post-mini__user-buttons user__buttons">
                                                 <?php
-                                                    $your_subscribe = check_subs($subscription['user_id']);
+                                                    $your_subscribe = $check_subs($subscription['user_id']);
                                                 ?>
 
                                                 <?php if($your_subscribe): ?>
-                                                    <a href="subscription.php?user_id=<?= $subscription['user_id'] ?>&follower_id=<?= $actual_user_id ?>&action=remove"
+                                                    <a
+                                                        href="<?= $to('subscription', [
+                                                            'user_id' => $subscription['user_id'],
+                                                            'follower_id' => $actual_user_id,
+                                                            'action' => 'remove'
+                                                        ]) ?>"
                                                        class="post-mini__user-button user__button user__button--subscription button button--quartz">Отписаться</a>
                                                 <?php else: ?>
-                                                    <a href="subscription.php?user_id=<?= $subscription['user_id'] ?>&follower_id=<?= $actual_user_id ?>&action=add"
+                                                    <a
+                                                        href="<?= $to('subscription', [
+                                                            'user_id' => $subscription['user_id'],
+                                                            'follower_id' => $actual_user_id,
+                                                            'action' => 'add'
+                                                        ]) ?>"
                                                        class="post-mini__user-button user__button user__button--subscription button button--main">Подписаться</a>
                                                 <?php endif; ?>
                                             </div>

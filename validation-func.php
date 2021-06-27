@@ -19,7 +19,7 @@ function validation_result($value = null, bool $result = true, string $message =
  * @param array $error_field_titles
  * @return array
  */
-function validation_validate(array $form_validations, array $error_field_titles): array {
+function validation_validate(array $form_validations, array $error_field_titles = []): array {
     $errors = [];
     $values = [];
 
@@ -30,7 +30,7 @@ function validation_validate(array $form_validations, array $error_field_titles)
             if (!$result['is_valid']) {
                 $errors += [
                     $key => [
-                        'title' => $error_field_titles[$key],
+                        'title' => $error_field_titles[$key] ?? 'Incorrect value',
                         'message' => $result['message'],
                     ]
                 ];

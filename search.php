@@ -1,15 +1,39 @@
 <?php
+/* @var Closure $utils_url_to */
+/* @var Closure $check_is_liked_post */
+
 require('init.php');
 require('helpers.php');
 require('utils.php');
 require('db.php');
+require('validation-func.php');
 
 init_check_auth('/');
 
+$validations = [
+    'search' => [
+        function ($name) {
+            $value = filter_input(INPUT_GET, 'search', FILTER_SANITIZE_STRING);
+
+            if (!$value) {
+                $value = null;
+            } else {
+                $value = htmlspecialchars($value);
+            }
+            return validation_result($value);
+        }
+    ]
+];
+
+$validation_result = validation_validate($validations);
+$values = $validation_result['values'];
+
+$search_query_text = $values['search'];
+
 $con = get_db_connection();
+$user = init_get_user();
 $title = 'readme: Страница результатов поиска';
 
-$search_query_text = !empty($_GET['search']) ? htmlspecialchars($_GET['search']) : null;
 $founded_posts = [];
 
 if ($search_query_text) {
@@ -23,17 +47,23 @@ if ($search_query_text) {
     }
 }
 
+$check_is_liked_post = function($post_id) use ($con, $user)
+{
+    return check_liked_post($con, $post_id, $user);
+};
+
 $page_content = include_template('search-results.php', [
     'search_query_text' => $search_query_text,
-    'founded_posts' => $founded_posts
+    'founded_posts' => $founded_posts,
+    'to' => $utils_url_to,
+    'user' => $user,
+    'check_is_liked_post' => $check_is_liked_post
 ]);
 
 $page = include_template('layout.php', [
     'page_content' => $page_content,
     'title' => $title,
-    'is_auth' =>$_SESSION['is_auth'],
-    'user_name' => $_SESSION['user_name'],
-    'user_avatar' => $_SESSION['avatar'],
+    'user' => $user,
     'search_query_text' => $search_query_text
 ]);
 
