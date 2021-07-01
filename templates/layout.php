@@ -38,7 +38,7 @@
         <?php endif; ?>
         <div class="header__nav-wrapper">
             <nav class="header__nav">
-                <?php if(!isset($is_registration_page) && $is_auth === 1): ?>
+                <?php if(!isset($is_registration_page) && $user['is_auth'] === 1): ?>
                     <ul class="header__my-nav">
                         <li class="header__my-page header__my-page--popular">
                             <a class="header__page-link
@@ -66,10 +66,10 @@
                         <li class="header__profile">
                             <a class="header__profile-link" href="#">
                                 <div class="header__avatar-wrapper">
-                                    <img class="header__profile-avatar" src="<?= $user_avatar ?>" alt="Аватар профиля">
+                                    <img class="header__profile-avatar" src="<?= $user['avatar'] ?>" alt="Аватар профиля">
                                 </div>
                                 <div class="header__profile-name">
-                                    <span><?= $user_name; ?></span>
+                                    <span><?= $user['user_name']; ?></span>
                                     <svg class="header__link-arrow" width="10" height="6">
                                         <use xlink:href="#icon-arrow-right-ad"></use>
                                     </svg>
@@ -79,7 +79,7 @@
                                 <div class="header__profile-tooltip">
                                     <ul class="header__profile-nav">
                                         <li class="header__profile-nav-item">
-                                            <a class="header__profile-nav-link" href="#">
+                                            <a class="header__profile-nav-link" href="profile.php">
                           <span class="header__profile-nav-text">
                             Мой профиль
                           </span>
@@ -133,6 +133,6 @@
 
 <!--<script src="libs/dropzone.js"></script>-->
 <!--<script src="js/dropzone-settings.js"></script>-->
-<script src="js/main.js"></script>
+<!--<script src="js/main.js"></script>-->
 </body>
 </html>

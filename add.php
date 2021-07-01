@@ -1,4 +1,7 @@
 <?php
+/* @var Closure $utils_url_to */
+/* @var Closure $get_tabs_link */
+
 require('init.php');
 require('helpers.php');
 require('utils.php');
@@ -7,10 +10,32 @@ require('db.php');
 
 init_check_auth('/');
 
+$validations_parameters = [
+    'active-tab' => [
+        function ($name) {
+            $value = filter_input(INPUT_POST, 'active-tab', FILTER_SANITIZE_STRING);
+            $value_tab = filter_input(INPUT_GET, 'tab', FILTER_SANITIZE_STRING);
+
+            if (!$value) {
+                if (!$value_tab) {
+                    $value = 'photo';
+                } else {
+                    $value = $value_tab;
+                }
+            }
+            return validation_result($value);
+        }
+    ]
+];
+
+$validation_parameters_result = validation_validate($validations_parameters);
+$values_parameters = $validation_parameters_result['values'];
+
 $con = get_db_connection();
+$user = init_get_user();
 $title = 'readme: добавление публикации';
 $content_types = get_post_content_types($con);
-$active_tab = isset($_POST['active-tab']) ? $_POST['active-tab'] : filter_input(INPUT_GET, 'tab') ?? 'photo';
+$active_tab = $values_parameters['active-tab'];
 
 $post_tabs = [
     'photo' => 'фото',
@@ -74,11 +99,7 @@ $form_validations = [
                 return validate_url($name);
             },
             2 => function($name) {
-                if ($_POST[$name] && is_string(check_youtube_url($_POST[$name]))) {
-                    return check_youtube_url($_POST[$name]);
-                } else {
-                    return false;
-                }
+                return validate_youtube($name);
             }
         ],
         'post-tags' => [
@@ -184,21 +205,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $post_type_id = $content_types[array_search($active_tab, array_column($content_types, 'title'))]['id'];
-        $post_id = save_post($con, $values, $post_type_id, $file_url, $_SESSION['id']);
+        $post_id = save_post($con, $values, $post_type_id, $user['id'], $file_url);
         if (!empty($values['post-tags'])) {
             save_tags($con, $values['post-tags'], $post_id);
         }
 
-        $URL = '/post.php?ID=' . $post_id;
+        $URL = $utils_url_to('post', ['ID' => $post_id]);
         header("Location: $URL");
     }
 }
 
-function get_tabs_link($name) {
-    $scriptname = pathinfo(__FILE__, PATHINFO_BASENAME);
-    $url = "/" . $scriptname . "?tab=" . $name;
-
-    return $url;
+$get_tabs_link = function($name) use($utils_url_to) {
+    return $utils_url_to('add', ['tab' => $name]);
 };
 
 $form_fields = include_template('adding-posts/adding-post-' . $active_tab  . '.php', [
@@ -217,15 +235,14 @@ $page_content = include_template('adding-post.php', [
     'post_tabs' => $post_tabs,
     'active_tab' => $active_tab,
     'errors' => $errors,
-    'active_form' => $active_form
+    'active_form' => $active_form,
+    'get_tabs_link' => $get_tabs_link
 ]);
 
 $page = include_template('layout.php', [
     'page_content' => $page_content,
     'title' => $title,
-    'is_auth' =>$_SESSION['is_auth'],
-    'user_name' => $_SESSION['user_name'],
-    'user_avatar' => $_SESSION['avatar']
+    'user' => $user
 ]);
 
 print($page);

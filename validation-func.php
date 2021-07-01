@@ -19,7 +19,7 @@ function validation_result($value = null, bool $result = true, string $message =
  * @param array $error_field_titles
  * @return array
  */
-function validation_validate(array $form_validations, array $error_field_titles): array {
+function validation_validate(array $form_validations, array $error_field_titles = []): array {
     $errors = [];
     $values = [];
 
@@ -30,7 +30,7 @@ function validation_validate(array $form_validations, array $error_field_titles)
             if (!$result['is_valid']) {
                 $errors += [
                     $key => [
-                        'title' => $error_field_titles[$key],
+                        'title' => $error_field_titles[$key] ?? 'Incorrect value',
                         'message' => $result['message'],
                     ]
                 ];
@@ -104,6 +104,27 @@ function validate_url($name) {
     return validation_result($_POST[$name]);
 };
 
+function validate_youtube($name) {
+    $url = $_POST[$name];
+    $id = extract_youtube_id($url);
+
+    set_error_handler(function () {}, E_WARNING);
+    $headers = get_headers('https://www.youtube.com/oembed?format=json&url=http://www.youtube.com/watch?v=' . $id);
+    restore_error_handler();
+
+    if (!is_array($headers)) {
+        return validation_result(null, false, 'Видео по такой ссылке не найдено. Проверьте ссылку на видео');
+    }
+
+    $err_flag = strpos($headers[0], '200') ? 200 : 404;
+
+    if ($err_flag !== 200) {
+        return validation_result(null, false, 'Видео по такой ссылке не найдено. Проверьте ссылку на видео');
+    }
+
+    return validation_result($_POST[$name]);
+};
+
 function validate_photo($name) {
     if ($_FILES[$name] && $_FILES[$name]['error'] !== 4) {
         $file_type = $_FILES[$name]['type'];
@@ -148,4 +169,10 @@ function validate_password($name) {
     return validation_result($_POST[$name]);
 };
 
+function validate_length($name, $length) {
+    if (strlen(trim($_POST[$name])) < $length) {
+        return validation_result(null, false, 'Длина комментария должна быть больше четырех символов');
+    }
 
+    return validation_result($_POST[$name]);
+};

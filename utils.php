@@ -7,7 +7,8 @@ define("ELLIPSIS_SYMBOL_COUNT", 3);
  * @param date $date
  * @return string
  */
-function format_publication_date($date) {
+function format_publication_date($date)
+{
     date_default_timezone_set('Europe/Moscow');
     $cur_date = date_create("now");
     $diff = date_diff($cur_date, date_create($date));
@@ -61,7 +62,8 @@ function not_found_page($user_name)
     exit();
 }
 
-function format_register_date($date) {
+function format_register_date($date)
+{
     date_default_timezone_set('Europe/Moscow');
     $cur_date = date_create("now");
     $diff = date_diff($cur_date, date_create($date));
@@ -97,23 +99,28 @@ function format_register_date($date) {
     }
 };
 
-function get_text_count_followers($count) {
+function get_text_count_followers($count)
+{
     return get_noun_plural_form($count, 'подписчик', 'подписчика', 'подписчиков');
 };
 
-function get_text_count_publications($count) {
+function get_text_count_publications($count)
+{
     return get_noun_plural_form($count, 'публикация', 'публикации', 'публикаций');
 };
 
-function get_text_count_shown($count) {
+function get_text_count_shown($count)
+{
     return $count . " " . get_noun_plural_form($count, 'просмотр', 'просмотра', 'просмотров');
 };
 
-function get_post_val($name) {
+function get_post_val($name)
+{
     return count($_POST) && $_POST[$name] ? htmlspecialchars($_POST[$name]) : '';
 };
 
-function upload_file($file_url, $path) {
+function upload_file($file_url, $path)
+{
     $image_content = file_get_contents($file_url);
     $file_name = basename($file_url);
     $file_path = __DIR__ . $path;
@@ -127,7 +134,8 @@ function upload_file($file_url, $path) {
     return $path .  $file_name;
 };
 
-function save_image($file, $path) {
+function save_image($file, $path)
+{
     $file_name = $file['name'];
     $file_path = __DIR__ . $path;
 
@@ -141,7 +149,8 @@ function save_image($file, $path) {
 };
 
 
-function save_post($con, $post, $post_type_id, $file_url = null, $user_id) {
+function save_post($con, $post, $post_type_id, $user_id, $file_url = null)
+{
     $data = [
         'id' => null,
         'date_add' => date('Y-m-d H:i:s'),
@@ -198,7 +207,8 @@ function save_post($con, $post, $post_type_id, $file_url = null, $user_id) {
     return mysqli_insert_id($con);
 };
 
-function save_tags($con, $hashtags, $post_id) {
+function save_tags($con, $hashtags, $post_id)
+{
     $new_unique_hashtags = array_unique((explode(' ', htmlspecialchars($hashtags))));
     $sql_hashtags_db = "SELECT * FROM hashtag";
     $result_hashtags_db = mysqli_query($con, $sql_hashtags_db);
@@ -225,7 +235,7 @@ function save_tags($con, $hashtags, $post_id) {
                 $hashtag_id = mysqli_insert_id($con);
             }
 
-            $sql_add_post_hashtag = "INSERT INTO PostHashtag SET post_id = ?, hashtag_id = ?";
+            $sql_add_post_hashtag = "INSERT INTO posthashtag SET post_id = ?, hashtag_id = ?";
             $stmt_post_hashtags = db_get_prepare_stmt(
                 $con,
                 $sql_add_post_hashtag,
@@ -252,7 +262,8 @@ function check_email_in_db($con, $email) {
     return false;
 };
 
-function register_user($con, $post, $file_url = null) {
+function register_user($con, $post, $file_url = null)
+{
     $data = [
         'id' => null,
         'date_add' => date('Y-m-d H:i:s'),
@@ -281,7 +292,8 @@ function register_user($con, $post, $file_url = null) {
     return mysqli_insert_id($con);
 };
 
-function check_user_author_data($con, $email, $password) {
+function check_user_author_data($con, $email, $password)
+{
     $sql = "SELECT id, email, password FROM user WHERE email = ?";
     $stmt = db_get_prepare_stmt(
         $con,
@@ -298,7 +310,8 @@ function check_user_author_data($con, $email, $password) {
     return false;
 };
 
-function cut_text($text, $count_symbols = 300) {
+function cut_text($text, $count_symbols = 300)
+{
     $word_list = explode(" ", $text);
     $symbols_sum = 0;
     $new_word_list = null;
@@ -321,17 +334,34 @@ function cut_text($text, $count_symbols = 300) {
     return '<p>' . implode(' ', $new_word_list) . '</p>' . '<a class="post-text__more-link" href="#">Читать далее</a>';
 };
 
-function get_link_content_type($id) {
-    $scriptname = $_SERVER['SCRIPT_NAME'];
-    $url = $scriptname . "?ID=" . $id;
-
-    return $url;
-};
-
-function get_url_post($id) {
-    return "/post.php?ID=" . $id;
-};
-
-function get_domain($url) {
+function get_domain($url)
+{
     return parse_url($url)['host'] ?? $url;
+};
+
+function get_youtube_video_miniature(string $youtube_url): string
+{
+    $id = extract_youtube_id($youtube_url);
+    $src = 'http://img.youtube.com/vi/'.$id.'/0.jpg';
+
+    return $src;
+};
+
+$utils_url_to = function (string $where, array $get = []): string
+{
+    $result = '/' . trim($where, '/') . '.php';
+    $params = [];
+
+    foreach ($get as $param => $value) {
+        $params[] = "$param=$value";
+    }
+
+    $result .= (count($params) > 0 ? '?' : '') . implode('&', $params);
+
+    return $result;
+};
+
+function check_liked_post($con, $post_id, $user): string
+{
+    return !empty(check_like($con, $user['id'], $post_id)) ? 'icon-heart-active' : 'icon-heart';
 };

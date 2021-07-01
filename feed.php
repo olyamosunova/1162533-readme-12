@@ -1,30 +1,55 @@
 <?php
+/* @var Closure $utils_url_to */
+
 require('init.php');
+require('db.php');
 require('helpers.php');
 require('utils.php');
-require('db.php');
+require('validation-func.php');
 
 init_check_auth('/');
 
-$page_name = 'feed';
+$validations = [
+    'content_id' => [
+        function ($name) {
+            $value = filter_input(INPUT_GET, 'content_id', FILTER_VALIDATE_INT);
+
+            if (!$value) {
+                $value = 1;
+            }
+            return validation_result($value);
+        }
+    ]
+];
+
+$validation_result = validation_validate($validations);
+$values = $validation_result['values'];
 
 $con = get_db_connection();
+$user = init_get_user();
+$page_name = 'feed';
 $title = 'Readme: моя лента';
 $content_types = get_post_content_types($con);
-$active_type_content_id = filter_input(INPUT_GET, 'ID') ?? 1;
-$posts = get_posts_for_me($con, $active_type_content_id, $_SESSION['id']);
+$active_type_content_id = $values['content_id'];
+$posts = get_posts_for_me($con, $user['id'], $active_type_content_id);
+
+$check_is_liked_post = function($post_id) use ($con, $user)
+{
+    return check_liked_post($con, $post_id, $user);
+};
 
 $page_content = include_template('feed.php', [
     'active_type_content_id' => $active_type_content_id,
     'content_types' => $content_types,
-    'posts' => $posts
+    'posts' => $posts,
+    'actual_user_id' => $user['id'],
+    'to' => $utils_url_to,
+    'check_is_liked_post' => $check_is_liked_post
 ]);
 
 $page = include_template('layout.php', [
     'title' => $title,
-    'is_auth' =>$_SESSION['is_auth'],
-    'user_name' => $_SESSION['user_name'],
-    'user_avatar' => $_SESSION['avatar'],
+    'user' => $user,
     'page_content' => $page_content,
     'page_name' => $page_name
 ]);

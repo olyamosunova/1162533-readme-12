@@ -10,7 +10,9 @@
                     <?php foreach ($posts as $key => $post): ?>
                         <article class="feed__post post <?= $post['type'] ?>">
                             <header class="post__header post__author">
-                                <a class="post__author-link" href="#" title="Автор">
+                                <a class="post__author-link"
+                                   href="<?= $to('profile', ['user_id' => $post['user_id']]) ?>"
+                                   title="Автор">
                                     <div class="post__avatar-wrapper">
                                         <img class="post__author-avatar" src="<?= htmlspecialchars($post['avatar']) ?>" alt="Аватар пользователя" width="60" height="60">
                                     </div>
@@ -22,12 +24,15 @@
                             </header>
                             <div class="post__main">
                                 <?php if ($post['type'] == 'post-photo'): ?>
-                                    <h2><a href="<?= get_url_post($post['id']) ?>"><?= htmlspecialchars($post['title']) ?></a></h2>
+                                    <h2>
+                                        <a href="<?= $to('post', ['ID' => $post['id']]) ?>"
+                                        ><?= htmlspecialchars($post['title']) ?></a>
+                                    </h2>
                                     <div class="post-photo__image-wrapper">
                                         <img src="<?= htmlspecialchars($post['content']) ?>" alt="Фото от пользователя" width="760" height="396">
                                     </div>
                                 <?php elseif($post['type'] === 'post-text'): ?>
-                                    <h2><a href="<?= get_url_post($post['id']) ?>"><?= $post['title'] ?></a></h2>
+                                    <h2><a href="<?= $to('post', ['ID' => $post['id']]) ?>"><?= $post['title'] ?></a></h2>
                                     <?= cut_text(htmlspecialchars($post['content'])) ?>
                                 <?php elseif($post['type'] === 'post-video'): ?>
                                     <div class="post-video__block">
@@ -78,17 +83,22 @@
                             </div>
                             <footer class="post__footer post__indicators">
                                 <div class="post__buttons">
-                                    <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">
+                                    <a
+                                        class="post__indicator post__indicator--likes button"
+                                        href="<?= $to('likes', [
+                                            'post_id' => $post['id'],
+                                            'user_id' => $actual_user_id
+                                        ]) ?>"
+                                        title="Лайк">
                                         <svg class="post__indicator-icon" width="20" height="17">
-                                            <use xlink:href="#icon-heart"></use>
-                                        </svg>
-                                        <svg class="post__indicator-icon post__indicator-icon--like-active" width="20" height="17">
-                                            <use xlink:href="#icon-heart-active"></use>
+                                            <use xlink:href="#<?= $check_is_liked_post($post['id']) ?>"></use>
                                         </svg>
                                         <span><?= $post['likes_count'] ?></span>
                                         <span class="visually-hidden">количество лайков</span>
                                     </a>
-                                    <a class="post__indicator post__indicator--comments button" href="#" title="Комментарии">
+                                    <a class="post__indicator post__indicator--comments button"
+                                       href="<?= $to('post', ['ID' => $post['id']]) ?>"
+                                       title="Комментарии">
                                         <svg class="post__indicator-icon" width="19" height="17">
                                             <use xlink:href="#icon-comment"></use>
                                         </svg>
@@ -114,8 +124,7 @@
                         class="feed__filters-item filters__item">
                         <a class="button filters__button filters__button--<?= $type['title'] ?>
                         <?= $active_type_content_id == $type['id'] ? 'filters__button--active' : '' ?>"
-                            href="<?= get_link_content_type($type['id']) ?>">
-
+                        href="<?= $to('feed', ['content_id' =>$type['id']]) ?>">
                             <?php if ($type['title'] !== 'all'): ?>
                                 <span class="visually-hidden"><?= $type['label'] ?></span>
                                 <svg class="filters__icon" width="22" height="18">

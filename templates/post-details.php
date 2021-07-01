@@ -45,12 +45,14 @@
 
                     <div class="post__indicators">
                         <div class="post__buttons">
-                            <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">
+                            <a class="post__indicator post__indicator--likes button"
+                               href="<?= $to('likes', [
+                                   'post_id' => $post['id'],
+                                   'user_id' => $user['id']
+                               ]) ?>"
+                               title="Лайк">
                                 <svg class="post__indicator-icon" width="20" height="17">
-                                    <use xlink:href="#icon-heart"></use>
-                                </svg>
-                                <svg class="post__indicator-icon post__indicator-icon--like-active" width="20" height="17">
-                                    <use xlink:href="#icon-heart-active"></use>
+                                    <use xlink:href="#<?= $check_is_liked_post($post['id']) ?>"></use>
                                 </svg>
                                 <span><?= $post['likes_count'] ?></span>
                                 <span class="visually-hidden">количество лайков</span>
@@ -75,17 +77,21 @@
                     <?php if (!empty($hashtags)): ?>
                         <ul class="post__tags">
                             <?php foreach ($hashtags as $key => $hashtag): ?>
-                                <li><a href="/search.php?search=%23<?= $hashtag['title'] ?>">#<?= $hashtag['title'] ?></a></li>
+                                <li>
+                                    <a
+                                        href="<?= $to('search', ['search' => '%23' . $hashtag['title']]) ?>"
+                                    >#<?= $hashtag['title'] ?></a>
+                                </li>
                             <?php endforeach; ?>
                         </ul>
                     <?php endif; ?>
                     <div class="comments">
-                        <form class="comments__form form" action="#" method="post">
+                        <form class="comments__form form" action="post.php" method="post">
                             <div class="comments__my-avatar">
-                                <img class="comments__picture" src="img/userpic-medium.jpg" alt="Аватар пользователя">
+                                <img class="comments__picture" src="<?= $user['avatar'] ?>" alt="Аватар пользователя">
                             </div>
                             <div class="form__input-section form__input-section--error">
-                                <textarea class="comments__textarea form__textarea form__input" placeholder="Ваш комментарий"></textarea>
+                                <textarea class="comments__textarea form__textarea form__input" name="message" placeholder="Ваш комментарий"></textarea>
                                 <label class="visually-hidden">Ваш комментарий</label>
                                 <button class="form__error-button button" type="button">!</button>
                                 <div class="form__error-text">
@@ -101,13 +107,15 @@
                                     <?php foreach ($comments as $key => $comment): ?>
                                         <li class="comments__item user">
                                             <div class="comments__avatar">
-                                                <a class="user__avatar-link" href="#">
+                                                <a class="user__avatar-link"
+                                                   href="<?= $to('profile', ['user_id' => $comment['user_id']]) ?>">
                                                     <img class="comments__picture" src="<?= $comment['author_avatar'] ?>" alt="Аватар пользователя">
                                                 </a>
                                             </div>
                                             <div class="comments__info">
                                                 <div class="comments__name-wrapper">
-                                                    <a class="comments__user-name" href="#">
+                                                    <a class="comments__user-name"
+                                                       href="<?= $to('profile', ['user_id' => $comment['user_id']]) ?>">
                                                         <span><?= $comment['author_name'] ?></span>
                                                     </a>
                                                     <time class="comments__time" datetime="<?= $comment['date_add'] ?>"><?= format_publication_date($comment['date_add']) ?></time>
@@ -132,12 +140,12 @@
                 <div class="post-details__user user">
                     <div class="post-details__user-info user__info">
                         <div class="post-details__avatar user__avatar">
-                            <a class="post-details__avatar-link user__avatar-link" href="#">
+                            <a class="post-details__avatar-link user__avatar-link" href="<?= $to('profile', ['user_id' => $author_info['id']]) ?>">
                                 <img class="post-details__picture user__picture" src="<?= $author_info['avatar'] ?>" alt="Аватар пользователя">
                             </a>
                         </div>
                         <div class="post-details__name-wrapper user__name-wrapper">
-                            <a class="post-details__name user__name" href="#">
+                            <a class="post-details__name user__name" href="<?= $to('profile', ['user_id' => $author_info['id']]) ?>">
                                 <span><?= $author_info['user_name'] ?? $author_info['login'] ?></span>
                             </a>
                             <time class="post-details__time user__time" datetime="2014-03-20"><?= format_register_date($author_info['date_add']) ?></time>
@@ -153,10 +161,32 @@
                             <span class="post-details__rating-text user__rating-text"><?= get_text_count_publications($author_info['count_posts']) ?></span>
                         </p>
                     </div>
-                    <div class="post-details__user-buttons user__buttons">
-                        <button class="user__button user__button--subscription button button--main" type="button">Подписаться</button>
-                        <a class="user__button user__button--writing button button--green" href="#">Сообщение</a>
-                    </div>
+                    <?php if($author_info['id'] != $user['id']): ?>
+                        <div class="post-details__user-buttons user__buttons">
+                            <?php
+                            $your_subscribe = $check_subs($author_info['id']);
+                            ?>
+
+                            <?php if($your_subscribe): ?>
+                                <a
+                                    href="<?= $to('subscription', [
+                                        'user_id' => $author_info['id'],
+                                        'follower_id' => $user['id'],
+                                        'action' => 'remove'
+                                    ]) ?>"
+                                    class="user__button user__button--subscription button button--quartz">Отписаться</a>
+                            <?php else: ?>
+                                <a
+                                    href="<?= $to('subscription', [
+                                        'user_id' => $author_info['id'],
+                                        'follower_id' => $user['id'],
+                                        'action' => 'add'
+                                    ]) ?>"
+                                    class="user__button user__button--subscription button button--main">Подписаться</a>
+                            <?php endif; ?>
+                            <a class="user__button user__button--writing button button--green" href="messages.html">Сообщение</a>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </section>
