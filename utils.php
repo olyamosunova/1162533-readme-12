@@ -365,3 +365,28 @@ function check_liked_post($con, $post_id, $user): string
 {
     return !empty(check_like($con, $user['id'], $post_id)) ? 'icon-heart-active' : 'icon-heart';
 };
+
+function new_follower_notification($sender, $recipient, $follower, $mailer)
+{
+    $site_name = 'Readme';
+    $subject = 'У вас новый подписчик';
+    $message = new Swift_Message($subject);
+    $message->setFrom($sender, $site_name);
+
+    $user_name = $recipient['login'];
+    $follower_name = $follower['user_name'];
+    $follower_id = $follower['id'];
+    $link = !empty($_SERVER['HTTPS']) ? 'https' : 'http' . '://' . $_SERVER['HTTP_HOST'] . "/profile.php?user_id=" . $follower_id;
+
+    $body = <<<MESS
+Здравствуйте, {$user_name}.
+На вас подписался новый пользователь {$follower_name}.
+Вот ссылка на его профиль: {$link}.
+MESS;
+
+    $message->setTo($recipient['email']);
+    $message->setBody($body, 'text/html');
+    $result = $mailer->send($message);
+
+    return $result;
+}

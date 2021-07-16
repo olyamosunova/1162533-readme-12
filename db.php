@@ -456,7 +456,7 @@ function change_subscription($con, $values) {
             mysqli_query($con, "ROLLBACK");
         }
 
-        return mysqli_stmt_errno($stmt_subscription);
+        return mysqli_stmt_errno($stmt_subscription) == 0 AND $values['action'] == 'add';
     }
 };
 
@@ -544,4 +544,21 @@ function get_user_subscriptions($con, $user_id) {
     }
 
     return $subscriptions;
+};
+
+function get_user_info($con, $user_id) {
+    $sql = "SELECT login, email FROM user WHERE id = ?";
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql,
+        [$user_id]);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $user_info = [];
+
+    if ($result) {
+        $user_info = mysqli_fetch_assoc($result);
+    }
+
+    return $user_info;
 };
