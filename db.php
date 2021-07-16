@@ -562,3 +562,23 @@ function get_user_info($con, $user_id) {
 
     return $user_info;
 };
+
+function get_followers($con, $user_id) {
+    $sql = "SELECT follower_id, email, login
+FROM subscription
+JOIN user ON user.id = follower_id
+WHERE user_id = ?";
+    $stmt = db_get_prepare_stmt(
+        $con,
+        $sql,
+        [$user_id]);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $followers = [];
+
+    if ($result) {
+        $followers = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    }
+
+    return $followers;
+}

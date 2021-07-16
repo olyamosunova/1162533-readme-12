@@ -390,3 +390,26 @@ MESS;
 
     return $result;
 }
+
+function new_post_notification($sender, $recipients, $author, $post_title, $mailer)
+{
+    $site_name = 'Readme';
+    $subject = 'Новая публикация от пользователя ' . $author['user_name'];
+    $message = new Swift_Message($subject);
+    $message->setFrom($sender, $site_name);
+
+    foreach ($recipients as $recipient) {
+        $author_name = $author['user_name'];
+        $user_name = $recipient['login'];
+        $link = !empty($_SERVER['HTTPS']) ? 'https' : 'http' . '://' . $_SERVER['HTTP_HOST'] . "/profile.php?user_id=" . $author['id'];
+        $body = <<<MESS
+Здравствуйте, {$user_name}.
+Пользователь {$author_name} только что опубликовал новую запись „{$post_title}“.
+Посмотрите её на странице пользователя: {$link}.
+MESS;
+
+        $message->setTo($recipient['email']);
+        $message->setBody($body, 'text/html');
+        $mailer->send($message);
+    }
+}
